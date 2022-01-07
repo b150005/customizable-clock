@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <tabs>
     <Tab text="General">
          <content>
@@ -14,9 +23,97 @@
                <children>
                   <HBox alignment="CENTER">
                      <children>
-                        <RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(時計)" HBox.hgrow="ALWAYS" />
-                        <RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(タイマー)" HBox.hgrow="ALWAYS" />
-                        <RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アナログ(時計)" HBox.hgrow="ALWAYS" />
+                        <RadioButton fx:id="digitalClockModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(時計)" HBox.hgrow="ALWAYS" />
+                        <RadioButton fx:id="digitalTimerModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(タイマー)" HBox.hgrow="ALWAYS" />
+                        <RadioButton fx:id="analogClockModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アナログ(時計)" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="displayAnimationInFrontCheckBox" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーションの前面表示" />
+                  <Separator />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <CheckBox fx:id="frontAnimationIsOnCheckBox" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(前面)" HBox.hgrow="ALWAYS" />
+                        <CheckBox fx:id="frontAnimationDisplaysOnSpecificTimeCheckBox" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="指定時のみ表示" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+                  <HBox>
+                     <children>
+                        <Label fx:id="frontAnimationFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseFrontAnimationFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <CheckBox fx:id="backAnimationIsOnCheckBox" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(背面)" HBox.hgrow="ALWAYS" />
+                        <CheckBox fx:id="backAnimationDisplaysOnSpecificTimeCheckBox" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="指定時のみ表示" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+                  <HBox>
+                     <children>
+                        <Label fx:id="backAnimationFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseBackAnimationFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <CheckBox fx:id="specificTimeIsOnCheckBox1" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻①" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificDatePicker1" />
+                        <ChoiceBox fx:id="specificHourChoiceBox1" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificMinuteChoiceBox1" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificSecondChoiceBox1" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="specificTimeIsOnCheckBox2" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻②" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificDatePicker2" />
+                        <ChoiceBox fx:id="specificHourChoiceBox2" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificMinuteChoiceBox2" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificSecondChoiceBox2" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="specificTimeIsOnCheckBox3" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻③" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificDatePicker3" />
+                        <ChoiceBox fx:id="specificHourChoiceBox3" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificMinuteChoiceBox3" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificSecondChoiceBox3" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="specificTimeIsOnCheckBox4" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻④" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificDatePicker4" />
+                        <ChoiceBox fx:id="specificHourChoiceBox4" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificMinuteChoiceBox4" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificSecondChoiceBox4" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="specificTimeIsOnCheckBox5" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻⑤" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificDatePicker5" />
+                        <ChoiceBox fx:id="specificHourChoiceBox5" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificMinuteChoiceBox5" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificSecondChoiceBox5" />
+                        <Label text="秒" />
                      </children>
                   </HBox>
                </children>
@@ -24,12 +121,94 @@
          </content></Tab>
       <Tab text="Digital">
          <content>
-            <VBox prefHeight="200.0" prefWidth="100.0" />
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="時計盤" />
+                  <HBox>
+                     <children>
+                        <Label fx:id="faceFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseFaceFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="短針" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label fx:id="hourFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseHourFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="長針" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label fx:id="minuteFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseMinuteFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="秒針" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label fx:id="secondFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseSecondFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="プレビュー" />
+               </children></VBox>
          </content>
       </Tab>
     <Tab text="Analog">
          <content>
-            <VBox prefHeight="200.0" prefWidth="100.0" />
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <ChoiceBox fx:id="fontChoiceBox" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chooseFontFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                     </children>
+                  </HBox>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント色(基本)" />
+                  <ColorPicker fx:id="baseFontColorPicker" maxWidth="1.7976931348623157E308" />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント色(タイマー直前)" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <ColorPicker fx:id="beforeFontColorPicker" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <Spinner fx:id="beforeMinuteSpinner" />
+                        <Label text="分前" />
+                     </children>
+                  </HBox>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント色(タイマー直後)" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <ColorPicker fx:id="afterFontColorPicker" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <Spinner fx:id="afterMinuteSpinner" />
+                        <Label text="分後" />
+                     </children>
+                  </HBox>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="透明度" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Slider fx:id="opacitySlider" max="1.0" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <Spinner fx:id="opacitySpinner" />
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="タイマー" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="timerDatePicker" />
+                        <ChoiceBox fx:id="timerHourChoiceBox" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="timerMinuteChoiceBox" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="timerSecondChoiceBox" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+               </children></VBox>
          </content></Tab>
   </tabs>
 </TabPane>
