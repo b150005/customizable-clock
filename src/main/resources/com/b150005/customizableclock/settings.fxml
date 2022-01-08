@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.b150005.customizableclock.SettingsController">
   <tabs>
     <Tab text="General">
          <content>
@@ -39,7 +39,7 @@
                   <HBox>
                      <children>
                         <Label fx:id="frontAnimationFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseFrontAnimationFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseFrontAnimationFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Separator />
@@ -52,7 +52,7 @@
                   <HBox>
                      <children>
                         <Label fx:id="backAnimationFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseBackAnimationFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseBackAnimationFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Separator />
@@ -127,7 +127,7 @@
                   <HBox>
                      <children>
                         <Label fx:id="faceFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseFaceFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseFaceFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Separator />
@@ -135,7 +135,7 @@
                   <HBox alignment="CENTER">
                      <children>
                         <Label fx:id="hourFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseHourFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseHourFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Separator />
@@ -143,7 +143,7 @@
                   <HBox alignment="CENTER">
                      <children>
                         <Label fx:id="minuteFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseMinuteFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseMinuteFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Separator />
@@ -151,7 +151,7 @@
                   <HBox alignment="CENTER">
                      <children>
                         <Label fx:id="secondFilePathLabel" maxWidth="1.7976931348623157E308" text="ファイルを選択してください" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseSecondFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseSecondFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Separator />
@@ -167,7 +167,7 @@
                   <HBox alignment="CENTER">
                      <children>
                         <ChoiceBox fx:id="fontChoiceBox" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="chooseFontFileButton" alignment="CENTER" mnemonicParsing="false" text="選択" />
+                        <Button fx:id="chooseFontFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
                      </children>
                   </HBox>
                   <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント色(基本)" />

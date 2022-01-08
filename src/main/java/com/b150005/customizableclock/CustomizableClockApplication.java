@@ -13,7 +13,13 @@ import java.net.URL;
  */
 public class CustomizableClockApplication extends Application {
     public static void main(String[] args) {
+      test();
+
       launch();
+    }
+
+    public static void test() {
+      
     }
 
     @Override
