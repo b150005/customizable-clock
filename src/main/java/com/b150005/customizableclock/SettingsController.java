@@ -84,7 +84,7 @@ public class SettingsController implements Initializable {
 
   @FXML private Spinner<Integer> beforeMinuteSpinner;
   @FXML private Spinner<Integer> afterMinuteSpinner;
-  @FXML private Spinner<Integer> opacitySpinner;
+  @FXML private Spinner<Double> opacitySpinner;
 
   @FXML private Slider opacitySlider;
 
@@ -152,6 +152,14 @@ public class SettingsController implements Initializable {
     ObservableList<String> fontNameList = getFontList();
     this.fontChoiceBox.setItems(fontNameList);
     this.fontChoiceBox.setValue(fontNameList.get(0));
+
+    // Spinner(Opacity) ↔ Slider(Opacity) の値の連動
+    this.opacitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+      this.opacitySlider.setValue(newValue);
+    });
+    this.opacitySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+      this.opacitySpinner.getValueFactory().setValue((Double) newValue);
+    });
   }
 
   /**
