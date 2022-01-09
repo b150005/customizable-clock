@@ -5,12 +5,19 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
 public class SettingsController implements Initializable {
@@ -66,6 +73,7 @@ public class SettingsController implements Initializable {
   @FXML private ChoiceBox<Integer> specificSecondChoiceBox3;
   @FXML private ChoiceBox<Integer> specificSecondChoiceBox4;
   @FXML private ChoiceBox<Integer> specificSecondChoiceBox5;
+  @FXML private ChoiceBox<String> fontChoiceBox;
   @FXML private ChoiceBox<Integer> timerHourChoiceBox;
   @FXML private ChoiceBox<Integer> timerMinuteChoiceBox;
   @FXML private ChoiceBox<Integer> timerSecondChoiceBox;
@@ -80,10 +88,70 @@ public class SettingsController implements Initializable {
 
   @FXML private Slider opacitySlider;
 
+  private static File userFontFile;
+
+  /**
+   * JavaFXコンポーネントの初期化
+   */
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
-    // TODO Auto-generated method stub
+    // DatePickerに現在日付をセット
+    List<DatePicker> datePickerList = new ArrayList<DatePicker>(Arrays.asList(
+      this.specificDatePicker1, 
+      this.specificDatePicker2, 
+      this.specificDatePicker3, 
+      this.specificDatePicker4, 
+      this.specificDatePicker5,
+      this.timerDatePicker
+    ));
+    for(DatePicker dp: datePickerList) {
+      dp.setValue(LocalDate.now());
+    }
+
+    // ChoiceBox(Hour)に0-23の値をセット
+    ObservableList<Integer> hourValueList = FXCollections.observableArrayList();
+    for (int i = 0; i < 24; i++) {
+      hourValueList.add(i);
+    }
+    List<ChoiceBox<Integer>> hourChoiceBoxList = new ArrayList<ChoiceBox<Integer>>(Arrays.asList(
+      this.specificHourChoiceBox1,
+      this.specificHourChoiceBox2,
+      this.specificHourChoiceBox3,
+      this.specificHourChoiceBox4,
+      this.specificHourChoiceBox5,
+      this.timerHourChoiceBox
+    ));
+    for (ChoiceBox<Integer> cb: hourChoiceBoxList) {
+      cb.setItems(hourValueList);
+    }
+
+    // ChoiceBox(Minute, Second)に0-59の値をセット
+    ObservableList<Integer> minSecValueList = FXCollections.observableArrayList();
+    for (int i = 0; i < 60; i++) {
+      minSecValueList.add(i);
+    }
+    List<ChoiceBox<Integer>> minSecChoiceBoxList = new ArrayList<ChoiceBox<Integer>>(Arrays.asList(
+      this.specificMinuteChoiceBox1,
+      this.specificMinuteChoiceBox2,
+      this.specificMinuteChoiceBox3,
+      this.specificMinuteChoiceBox4,
+      this.specificMinuteChoiceBox5,
+      this.timerMinuteChoiceBox,
+      this.specificSecondChoiceBox1,
+      this.specificSecondChoiceBox2,
+      this.specificSecondChoiceBox3,
+      this.specificSecondChoiceBox4,
+      this.specificSecondChoiceBox5,
+      this.timerSecondChoiceBox
+    ));
+    for (ChoiceBox<Integer> cb: minSecChoiceBoxList) {
+      cb.setItems(minSecValueList);
+    }
     
+    // フォントの一覧をChoiceBoxにセット
+    ObservableList<String> fontNameList = getFontList();
+    this.fontChoiceBox.setItems(fontNameList);
+    this.fontChoiceBox.setValue(fontNameList.get(0));
   }
 
   /**
@@ -93,7 +161,8 @@ public class SettingsController implements Initializable {
   @FXML protected void onChooseButtonClicked(ActionEvent event) {
     String dataType = "";
     String initialDirectory = System.getProperty("user.home") + File.separator + "Desktop";
-    String extension = "*.gif";
+    String description = "Gif Files";
+    List<String> extensions = Arrays.asList("*.gif");
     Path fontFolderPathForWin = Paths.get("C:\\Windows\\Fonts");
 
     switch (((Button)event.getSource()).getId()) {
@@ -117,21 +186,22 @@ public class SettingsController implements Initializable {
       break;
     case "chooseFontFileButton":
       dataType = "フォント";
-      extension = "*.ttf, *.ttc";
+      description = "Font Files";
+      extensions = Arrays.asList("*.ttf", "*.otf","*.ttc", "*.otc", "*.dfont", "*.eot", "*.woff", "*.woff2");
 
       // Windows かつ システム標準のフォントフォルダが存在する場合はFileChooserの初期ディレクトリに設定
-      if ((System.getProperty("os.name").substring(0, 8) == "Windows") && (Files.exists(fontFolderPathForWin) == true)) {
+      if ((System.getProperty("os.name").substring(0, 7).equals("Windows")) && (Files.exists(fontFolderPathForWin) == true)) {
         initialDirectory = fontFolderPathForWin.toString();
       }
       break;  
     }
 
     // FileChooserのオープン・ファイルの取得
-    File file = getFilePathWithFileChooser(dataType + "の選択", initialDirectory, extension);
+    File file = getFilePathWithFileChooser(dataType + "の選択", initialDirectory, description, extensions);
 
     // Fileが選択された場合は、ラベルを変更
     if (file != null) {
-      String filePath = file.getAbsolutePath()
+      String filePath = file.getAbsolutePath();
       switch (((Button)event.getSource()).getId()) {
       case "chooseFrontAnimationFileButton":
         frontAnimationFilePathLabel.setText(filePath);
@@ -153,7 +223,18 @@ public class SettingsController implements Initializable {
         break;
       case "chooseFontFileButton":
         // フォントの場合はChoiceBoxに追加・セット
+        String fontNameWithExtension = file.getName();
+        String fontName = fontNameWithExtension.substring(0, fontNameWithExtension.lastIndexOf('.'));
+        String fontExtension = fontNameWithExtension.substring(fontNameWithExtension.lastIndexOf('.'), fontNameWithExtension.length());
 
+        List<String> fontExtensionList = Arrays.asList(".ttf", ".otf",".ttc", ".otc", ".dfont", ".eot", ".woff", ".woff2");
+        // 選択されたファイル拡張子がフォントファイルのものである場合はChoiceBoxに追加・セットし、フォントファイルのパスを保存
+        if (fontExtensionList.contains(fontExtension) == true) {
+          fontChoiceBox.getItems().add(fontName);
+          fontChoiceBox.setValue(fontName);
+
+          userFontFile = file;
+        }
         break;
       }
     }
@@ -163,14 +244,33 @@ public class SettingsController implements Initializable {
    * FileChooser(ファイル選択ダイアログ)を表示し、選択したFileオブジェクトを返却
    * @param title FileChooserのタイトルバーに表示する文字列
    * @param initialDirectory FileChooserダイアログが最初に表示するディレクトリ
-   * @param extension 選択できる拡張子の種類
+   * @param extensions 選択できるList<String>型の拡張子の種類
    * @return 選択したFileオブジェクト(Cancelを押した場合はnullが返却される)
    */
-  private static File getFilePathWithFileChooser(String title, String initialDirectory, String extension) {
+  private static File getFilePathWithFileChooser(String title, String initialDirectory, String description, List<String> extensions) {
     FileChooser fileChooser = new FileChooser();
+
     // FileChooserのタイトル
     fileChooser.setTitle(title);
+    // 初期ディレクトリ
+    fileChooser.setInitialDirectory(new File(initialDirectory));
+    // FileChooserのExtensionFilter
+    fileChooser.getExtensionFilters().addAll(
+      new FileChooser.ExtensionFilter(description, extensions),
+      new FileChooser.ExtensionFilter("All Files", "*.*")
+    );
     // FileChooserの表示
     return fileChooser.showOpenDialog(null);
+  }
+
+  /**
+   * ObservableList<String>型のフォント一覧を取得
+   * @return ObservableList<String>型のフォント一覧
+   */
+  private static ObservableList<String> getFontList() {
+    // フォントの一覧を取得
+    List<String> fontNameList = Font.getFontNames();
+    
+    return FXCollections.observableArrayList(fontNameList);
   }
 }

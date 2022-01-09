@@ -12,6 +12,7 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -23,9 +24,12 @@
                <children>
                   <HBox alignment="CENTER">
                      <children>
-                        <RadioButton fx:id="digitalClockModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(時計)" HBox.hgrow="ALWAYS" />
-                        <RadioButton fx:id="digitalTimerModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(タイマー)" HBox.hgrow="ALWAYS" />
-                        <RadioButton fx:id="analogClockModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アナログ(時計)" HBox.hgrow="ALWAYS" />
+                        <RadioButton fx:id="digitalClockModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="デジタル(時計)" HBox.hgrow="ALWAYS">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="mode" />
+                           </toggleGroup></RadioButton>
+                        <RadioButton fx:id="digitalTimerModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="デジタル(タイマー)" toggleGroup="$mode" HBox.hgrow="ALWAYS" />
+                        <RadioButton fx:id="analogClockModeRadioButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アナログ(時計)" toggleGroup="$mode" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
                   <CheckBox fx:id="displayAnimationInFrontCheckBox" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーションの前面表示" />
