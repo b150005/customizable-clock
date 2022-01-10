@@ -16,13 +16,14 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.b150005.customizableclock.SettingsController">
   <tabs>
     <Tab text="General">
       <content>
-        <VBox prefHeight="200.0" prefWidth="100.0">
+        <VBox alignment="TOP_CENTER">
           <children>
             <HBox alignment="CENTER">
               <children>
@@ -123,13 +124,15 @@
                 <Label text="秒" />
               </children>
             </HBox>
+                  <Separator />
+                  <Button fx:id="displayCustomizedClockButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="新規ウィンドウで時計を表示" />
           </children>
         </VBox>
       </content>
     </Tab>
     <Tab text="Digital">
       <content>
-        <VBox prefHeight="200.0" prefWidth="100.0">
+        <VBox alignment="TOP_CENTER">
           <children>
             <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント" />
             <HBox alignment="CENTER">
@@ -189,14 +192,14 @@
               </children>
             </HBox>
                   <Separator />
-                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="プレビュー" />
+                  <Button fx:id="reloadDigitalPreviewButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="プレビューを更新" />
           </children>
         </VBox>
       </content>
     </Tab>
     <Tab text="Analog">
       <content>
-        <VBox prefHeight="200.0" prefWidth="100.0">
+        <VBox alignment="TOP_CENTER">
           <children>
             <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="時計盤" />
             <HBox>
@@ -230,7 +233,8 @@
               </children>
             </HBox>
             <Separator />
-            <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="プレビュー" />
+                  <Button fx:id="reloadAnalogPreviewButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="プレビューを更新" />
+                  <StackPane fx:id="analogPreviewStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
           </children>
         </VBox>
       </content>

@@ -17,6 +17,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
@@ -50,6 +51,9 @@ public class SettingsController implements Initializable {
   @FXML private Button chooseMinuteFileButton;
   @FXML private Button chooseSecondFileButton;
   @FXML private Button chooseFontFileButton;
+  @FXML private Button displayCustomizedClockButton;
+  @FXML private Button reloadDigitalPreviewButton;
+  @FXML private Button reloadAnalogPreviewButton;
   
   @FXML private DatePicker specificDatePicker1;
   @FXML private DatePicker specificDatePicker2;
@@ -87,6 +91,8 @@ public class SettingsController implements Initializable {
   @FXML private Spinner<Double> opacitySpinner;
 
   @FXML private Slider opacitySlider;
+
+  @FXML private StackPane analogPreviewStackPane;
 
   private static File userFontFile;
 
