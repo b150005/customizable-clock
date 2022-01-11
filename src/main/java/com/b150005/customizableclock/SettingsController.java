@@ -168,6 +168,46 @@ public class SettingsController implements Initializable {
     });
   }
 
+  public enum Buttons {
+    FrontAnimation("chooseFrontAnimationFileButton", "アニメーション(前面)"),
+    BackAnimation("chooseBackAnimationFileButton", "アニメーション(背面)"),
+    Face("chooseFaceFileButton", "時計盤"),
+    Hour("chooseHourFileButton", "短針"),
+    Minute("chooseMinuteFileButton", "長針"),
+    Second("chooseSecondFileButton", "秒針"),
+    Font("chooseFontFileButton", "フォント");
+
+    private final String id;
+    private final String description;
+
+    private Buttons(final String id, final String description) {
+      this.id = id;
+      this.description = description;
+    }
+
+    public String getId() {
+      return this.id;
+    }
+
+    public String getDescription() {
+      return this.description;
+    }
+
+    public static Buttons fromValue(final String value) {
+      for (Buttons btn: values()) {
+        if (btn.getId().equals(value) == true) {
+          return btn;
+        }
+      }
+      throw new IllegalArgumentException("undefined: " + value);
+    }
+
+    @Override
+    public String toString() {
+      return this.id;
+    }
+  }
+
   /**
    * 選択ボタンが押下された場合に呼び出される処理
    * @param event コンポーネントによって発火したActionEvent
@@ -179,26 +219,9 @@ public class SettingsController implements Initializable {
     List<String> extensions = Arrays.asList("*.gif");
     Path fontFolderPathForWin = Paths.get("C:\\Windows\\Fonts");
 
-    switch (((Button)event.getSource()).getId()) {
-    case "chooseFrontAnimationFileButton":
-      dataType = "前面アニメーション";
-      break;
-    case "chooseBackAnimationFileButton":
-      dataType = "アニメーション(背面)";
-      break;
-    case "chooseFaceFileButton":
-      dataType = "時計盤";
-      break;
-    case "chooseHourFileButton":
-      dataType = "短針";
-      break;
-    case "chooseMinuteFileButton":
-      dataType = "長針";
-      break;
-    case "chooseSecondFileButton":
-      dataType = "秒針";
-      break;
-    case "chooseFontFileButton":
+    Buttons buttons = Buttons.fromValue(((Button)event.getSource()).getId());
+    switch (buttons) {
+    case Font:
       dataType = "フォント";
       description = "Font Files";
       extensions = Arrays.asList("*.ttf", "*.otf","*.ttc", "*.otc", "*.dfont", "*.eot", "*.woff", "*.woff2");
@@ -207,7 +230,10 @@ public class SettingsController implements Initializable {
       if ((System.getProperty("os.name").substring(0, 7).equals("Windows")) && (Files.exists(fontFolderPathForWin) == true)) {
         initialDirectory = fontFolderPathForWin.toString();
       }
-      break;  
+      break;
+    default:
+      dataType = buttons.getDescription();
+      break;
     }
 
     // FileChooserのオープン・ファイルの取得
@@ -216,26 +242,26 @@ public class SettingsController implements Initializable {
     // Fileが選択された場合は、ラベルを変更
     if (file != null) {
       String filePath = file.getAbsolutePath();
-      switch (((Button)event.getSource()).getId()) {
-      case "chooseFrontAnimationFileButton":
+      switch (buttons) {
+      case FrontAnimation:
         frontAnimationFilePathLabel.setText(filePath);
         break;
-      case "chooseBackAnimationFileButton":
+      case BackAnimation:
         backAnimationFilePathLabel.setText(filePath);
         break;
-      case "chooseFaceFileButton":
+      case Face:
         faceFilePathLabel.setText(filePath);
         break;
-      case "chooseHourFileButton":
+      case Hour:
         hourFilePathLabel.setText(filePath);
         break;
-      case "chooseMinuteFileButton":
+      case Minute:
         minuteFilePathLabel.setText(filePath);
         break;
-      case "chooseSecondFileButton":
+      case Second:
         secondFilePathLabel.setText(filePath);
         break;
-      case "chooseFontFileButton":
+      case Font:
         // フォントの場合はChoiceBoxに追加・セット
         String fontNameWithExtension = file.getName();
         String fontName = fontNameWithExtension.substring(0, fontNameWithExtension.lastIndexOf('.'));
