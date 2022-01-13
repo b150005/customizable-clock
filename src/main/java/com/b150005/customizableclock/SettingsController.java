@@ -17,6 +17,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -94,6 +96,9 @@ public class SettingsController implements Initializable {
 
   @FXML private StackPane analogPreviewStackPane;
 
+  /**
+   * FileChooserで選択したフォントファイル
+   */
   private static File userFontFile;
 
   /**
@@ -312,5 +317,59 @@ public class SettingsController implements Initializable {
     List<String> fontNameList = Font.getFontNames();
     
     return FXCollections.observableArrayList(fontNameList);
+  }
+
+  /**
+   * アナログ時計のプレビューを更新
+   */
+  @FXML protected void reloadAnalogPreview() {
+    ImageView faceImageView = new ImageView("file:" + faceFilePathLabel.getText());
+    ImageView hourImageView = new ImageView("file:" + hourFilePathLabel.getText());
+    ImageView minuteImageView = new ImageView("file:" + minuteFilePathLabel.getText());
+    ImageView secondImageView = new ImageView("file:" + secondFilePathLabel.getText());
+    ImageView frontAnimationImageView = new ImageView("file:" + frontAnimationFilePathLabel.getText());
+    ImageView backAnimationImageView = new ImageView("file:" + backAnimationFilePathLabel.getText());
+
+    List<ImageView> clockImageViewList = new ArrayList<ImageView>(Arrays.asList(
+      faceImageView,
+      hourImageView,
+      minuteImageView,
+      secondImageView
+    ));
+
+    List<ImageView> animationImageViewList = new ArrayList<ImageView>();
+    if (frontAnimationIsOnCheckBox.isSelected() == true) {
+      animationImageViewList.add(frontAnimationImageView);
+    }
+    if (backAnimationIsOnCheckBox.isSelected() == true) {
+      animationImageViewList.add(backAnimationImageView);
+    }
+
+    // Imageファイルが存在する場合はStackPaneに表示
+    ObservableList<ImageView> imageViewObservableList= FXCollections.observableArrayList();
+    if (displayAnimationInFrontCheckBox.isSelected() == true) {
+      addFoundImageViews(animationImageViewList, imageViewObservableList);
+      addFoundImageViews(clockImageViewList, imageViewObservableList);
+    }
+    else {
+      addFoundImageViews(clockImageViewList, imageViewObservableList);
+      addFoundImageViews(animationImageViewList, imageViewObservableList);
+    }
+
+    analogPreviewStackPane.getChildren().addAll(imageViewObservableList);
+  }
+
+  /**
+   * Imageファイルが存在するImageViewをObservableList<ImageView>に追加する
+   * @param fromList Imageファイルが存在するかどうかを調べるList<ImageView>型のリスト
+   * @param toList Imageファイルが存在するImageViewを格納するObservableList<ImageView>型のリスト
+   */
+  private static void addFoundImageViews(List<ImageView> fromList, ObservableList<ImageView> toList) {
+    for (ImageView imgView: fromList) {
+      Image img = imgView.imageProperty().get();
+      if (img.errorProperty().get() == true) {
+        toList.add(imgView);
+      }
+    }
   }
 }
