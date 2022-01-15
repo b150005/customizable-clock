@@ -6,11 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -22,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 public class SettingsController implements Initializable {
   @FXML private RadioButton digitalClockModeRadioButton;
@@ -100,6 +106,10 @@ public class SettingsController implements Initializable {
    * FileChooserで選択したフォントファイル
    */
   private static File userFontFile;
+
+  private static RotateTransition hourRotateTransition;
+  private static RotateTransition minRotateTransition;
+  private static RotateTransition secRotateTransition;
 
   /**
    * JavaFXコンポーネントの初期化
@@ -356,7 +366,33 @@ public class SettingsController implements Initializable {
       addFoundImageViews(animationImageViewList, imageViewObservableList);
     }
 
+    // StackPaneに表示するImageViewのサイズをStackPaneと連動
+    // 幅と高さで小さい方に合わせる
+    for (ImageView imgView: imageViewObservableList) {
+      ReadOnlyDoubleProperty paneWidth = analogPreviewStackPane.widthProperty();
+      ReadOnlyDoubleProperty paneHeight = analogPreviewStackPane.heightProperty();
+      if (analogPreviewStackPane.getWidth() > analogPreviewStackPane.getHeight()) {
+        imgView.fitWidthProperty().bind(paneHeight);
+        imgView.fitHeightProperty().bind(paneHeight);
+      }
+      else {
+        imgView.fitWidthProperty().bind(paneWidth);
+        imgView.fitHeightProperty().bind(paneWidth);
+      }
+    }
+
+    // StackPaneの初期化・ImageViewのセット
+    analogPreviewStackPane.getChildren().clear();
     analogPreviewStackPane.getChildren().addAll(imageViewObservableList);
+
+    // 現在時刻に応じた回転アニメーションの再生
+    LocalTime time = LocalTime.now();
+    hourRotateTransition = createRotateTransition(PreviewType.Preview, Duration.hours(12), hourImageView, getInitialAngle(time, TimeType.Hour));
+    hourRotateTransition.play();
+    minRotateTransition = createRotateTransition(PreviewType.Preview, Duration.minutes(60), minuteImageView, getInitialAngle(time, TimeType.Minute));
+    minRotateTransition.play();
+    secRotateTransition = createRotateTransition(PreviewType.Preview, Duration.seconds(60), secondImageView, getInitialAngle(time, TimeType.Second));
+    secRotateTransition.play();
   }
 
   /**
@@ -367,9 +403,75 @@ public class SettingsController implements Initializable {
   private static void addFoundImageViews(List<ImageView> fromList, ObservableList<ImageView> toList) {
     for (ImageView imgView: fromList) {
       Image img = imgView.imageProperty().get();
-      if (img.errorProperty().get() == true) {
+      if (img.errorProperty().get() == false) {
         toList.add(imgView);
       }
     }
+  }
+
+  /**
+   * アニメーションのCycleCount(繰り返し回数)を定義する列挙型
+   * Main: メイン画面
+   * Preview: プレビュー画面
+   */
+  public enum PreviewType {
+    Main, Preview;
+  };
+
+  /**
+   * 回転アニメーションを表すRotateTransitionインスタンスを生成
+   * @param type アニメーションを表示する画面の種類, PreviewType.Mainの場合は繰り返し回数が無限となり、PreviewType.Previewの場合は1回のみ
+   * @param duration アニメーション1回あたりの時間
+   * @param imageView アニメーションを適用するImageView
+   * @param initialAngle 初期回転角度
+   * @return RotateTransition
+   */
+  private static RotateTransition createRotateTransition(PreviewType type, Duration duration, ImageView imageView, double initialAngle) {
+    RotateTransition rotateTransition = new RotateTransition(duration, imageView);
+
+    // 初期角度
+    rotateTransition.setFromAngle(initialAngle);
+    // Duration内に回転する角度
+    rotateTransition.setByAngle(360);
+    // アニメーションを繰り返す
+    switch (type) {
+      case Main:
+        rotateTransition.setCycleCount(Animation.INDEFINITE);
+      case Preview:
+        rotateTransition.setCycleCount(1);
+    }
+    
+    // 等速アニメーション
+    rotateTransition.setInterpolator(Interpolator.LINEAR);
+
+    return rotateTransition;
+  }
+
+  public enum TimeType {
+    Hour, Minute, Second
+  };
+
+  /**
+   * TimeTypeに応じたdouble型の初期回転角度を算出する
+   * @param time 計算に必要なLocalTime(現在時刻)
+   * @param timeType 時・分・秒を表すTimeType
+   * @return double型の回転角度
+   */
+  private static double getInitialAngle(LocalTime time, TimeType timeType) {
+    double result = 0;
+    
+    switch (timeType) {
+      case Hour:
+        result = (double) ((time.getHour() % 12 + time.getMinute() / 60d + time.getSecond() / 3600d) * 360 / 12);
+        break;
+      case Minute:
+        result = (double) ((time.getMinute() + time.getSecond() / 60d) * 360 / 60);
+        break;
+      case Second:
+        result = (double) time.getSecond() * 360 / 60;
+        break;
+    }
+
+    return result;
   }
 }

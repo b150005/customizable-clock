@@ -234,7 +234,7 @@
             </HBox>
             <Separator />
                   <Button fx:id="reloadAnalogPreviewButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#reloadAnalogPreview" text="プレビューを更新" />
-                  <StackPane fx:id="analogPreviewStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                  <StackPane fx:id="analogPreviewStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" VBox.vgrow="ALWAYS" />
           </children>
         </VBox>
       </content>
