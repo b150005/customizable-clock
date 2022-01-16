@@ -138,6 +138,8 @@
             <HBox alignment="CENTER">
               <children>
                 <ChoiceBox fx:id="fontChoiceBox" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <ChoiceBox fx:id="fontPostureChoiceBox" />
+                        <ChoiceBox fx:id="fontWeightChoiceBox" />
                 <Button fx:id="chooseFontFileButton" alignment="CENTER" mnemonicParsing="false" onAction="#onChooseButtonClicked" text="選択" />
               </children>
             </HBox>
@@ -192,7 +194,8 @@
               </children>
             </HBox>
                   <Separator />
-                  <Button fx:id="reloadDigitalPreviewButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="プレビューを更新" />
+                  <Button fx:id="reloadDigitalPreviewButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#reloadDigitalPreview" text="プレビューを更新" />
+                  <StackPane fx:id="digitalPreviewStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" VBox.vgrow="ALWAYS" />
           </children>
         </VBox>
       </content>

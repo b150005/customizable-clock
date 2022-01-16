@@ -13,7 +13,7 @@ import java.net.URL;
  */
 public class CustomizableClockApplication extends Application {
     public static void main(String[] args) {
-      test();
+      // test();
 
       launch();
     }

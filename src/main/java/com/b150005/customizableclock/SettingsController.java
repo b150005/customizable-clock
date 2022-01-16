@@ -9,16 +9,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
 import javafx.animation.RotateTransition;
+import javafx.animation.Timeline;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -26,6 +30,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -86,6 +93,8 @@ public class SettingsController implements Initializable {
   @FXML private ChoiceBox<Integer> specificSecondChoiceBox4;
   @FXML private ChoiceBox<Integer> specificSecondChoiceBox5;
   @FXML private ChoiceBox<String> fontChoiceBox;
+  @FXML private ChoiceBox<String> fontWeightChoiceBox;
+  @FXML private ChoiceBox<String> fontPostureChoiceBox;
   @FXML private ChoiceBox<Integer> timerHourChoiceBox;
   @FXML private ChoiceBox<Integer> timerMinuteChoiceBox;
   @FXML private ChoiceBox<Integer> timerSecondChoiceBox;
@@ -101,15 +110,19 @@ public class SettingsController implements Initializable {
   @FXML private Slider opacitySlider;
 
   @FXML private StackPane analogPreviewStackPane;
+  @FXML private StackPane digitalPreviewStackPane;
 
   /**
-   * FileChooserで選択したフォントファイル
+   * FileChooserで選択したフォント
    */
-  private static File userFontFile;
+  private static String userFontName = null;
+  private static File userFontFile = null;
 
   private static RotateTransition hourRotateTransition;
   private static RotateTransition minRotateTransition;
   private static RotateTransition secRotateTransition;
+
+  private static Timeline digitalPreviewTimeline = null;
 
   /**
    * JavaFXコンポーネントの初期化
@@ -169,10 +182,40 @@ public class SettingsController implements Initializable {
       cb.setItems(minSecValueList);
     }
     
-    // フォントの一覧をChoiceBoxにセット
-    ObservableList<String> fontNameList = getFontList();
-    this.fontChoiceBox.setItems(fontNameList);
-    this.fontChoiceBox.setValue(fontNameList.get(0));
+    // フォントファミリの一覧をChoiceBoxにセット
+    ObservableList<String> fontFamilyNameList = getFontFamilyList();
+    this.fontChoiceBox.setItems(fontFamilyNameList);
+    this.fontChoiceBox.setValue(fontFamilyNameList.get(0));
+
+    // FontWeightをChoiceBoxにセット
+    ObservableList<String> fontWeightList = FXCollections.observableArrayList(
+      "Thin",         // 100
+      "ExtraLight",   // 200
+      "Light",        // 300
+      "Normal",       // 400
+      "Medium",       // 500
+      "SemiBold",     // 600
+      "Bold",         // 700
+      "ExtraBold",    // 800
+      "Black"         // 900
+    );
+    this.fontWeightChoiceBox.setItems(fontWeightList);
+    this.fontWeightChoiceBox.setValue(fontWeightList.get(3));
+
+    // FontPostureをChoiceBoxにセット
+    ObservableList<String> fontPostureList = FXCollections.observableArrayList("Regular", "Italic");
+    this.fontPostureChoiceBox.setItems(fontPostureList);
+    this.fontPostureChoiceBox.setValue(fontPostureList.get(0));
+
+    // ChoiceBox(フォント) で既存フォントが選択された場合はChoiceBoxからユーザ指定の値を取り除き、
+    // static変数の値をnullにする
+    this.fontChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (userFontName != null && newValue.equals(userFontName) == false) {
+        this.fontChoiceBox.getItems().remove(userFontName);
+        userFontName = null;
+        userFontFile = null;
+      }
+    });
 
     // Spinner(Opacity) ↔ Slider(Opacity) の値の連動
     this.opacitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -279,14 +322,14 @@ public class SettingsController implements Initializable {
       case Font:
         // フォントの場合はChoiceBoxに追加・セット
         String fontNameWithExtension = file.getName();
-        String fontName = fontNameWithExtension.substring(0, fontNameWithExtension.lastIndexOf('.'));
+        userFontName = fontNameWithExtension.substring(0, fontNameWithExtension.lastIndexOf('.'));
         String fontExtension = fontNameWithExtension.substring(fontNameWithExtension.lastIndexOf('.'), fontNameWithExtension.length());
 
         List<String> fontExtensionList = Arrays.asList(".ttf", ".otf",".ttc", ".otc", ".dfont", ".eot", ".woff", ".woff2");
         // 選択されたファイル拡張子がフォントファイルのものである場合はChoiceBoxに追加・セットし、フォントファイルのパスを保存
         if (fontExtensionList.contains(fontExtension) == true) {
-          fontChoiceBox.getItems().add(fontName);
-          fontChoiceBox.setValue(fontName);
+          fontChoiceBox.getItems().add(userFontName);
+          fontChoiceBox.setValue(userFontName);
 
           userFontFile = file;
         }
@@ -319,14 +362,14 @@ public class SettingsController implements Initializable {
   }
 
   /**
-   * ObservableList<String>型のフォント一覧を取得
-   * @return ObservableList<String>型のフォント一覧
+   * ObservableList<String>型のフォントファミリの一覧を取得
+   * @return ObservableList<String>型のフォントファミリの一覧
    */
-  private static ObservableList<String> getFontList() {
+  private static ObservableList<String> getFontFamilyList() {
     // フォントの一覧を取得
-    List<String> fontNameList = Font.getFontNames();
+    List<String> fontFamilyNameList = Font.getFamilies();
     
-    return FXCollections.observableArrayList(fontNameList);
+    return FXCollections.observableArrayList(fontFamilyNameList);
   }
 
   /**
@@ -473,5 +516,111 @@ public class SettingsController implements Initializable {
     }
 
     return result;
+  }
+
+  /**
+   * デジタル時計(タイマー)のプレビューを更新
+   */
+  @FXML protected void reloadDigitalPreview() {
+    Label timerLabel = new Label();
+
+    // フォントの設定
+    final double defaultFontSize = 100;
+    timerLabel.textProperty().addListener((observable, oldValue, newValue) -> {
+      // Textを利用してmaxFontSize下での文字列の表示幅を取得
+      Text text = new Text(newValue);
+
+      // ChoiceBoxで選択された値
+      String fontFamilyName = fontChoiceBox.getValue();
+
+      FontWeight fontWeight = FontWeight.NORMAL;
+      switch (fontWeightChoiceBox.getValue()) {
+        case "Thin":
+          fontWeight = FontWeight.THIN;
+          break;
+        case "ExtraLight":
+          fontWeight =  FontWeight.EXTRA_LIGHT;
+          break;
+        case "Light":
+          fontWeight = FontWeight.LIGHT;
+          break;
+        case "Normal":
+          fontWeight = FontWeight.NORMAL;
+          break;
+        case "Medium":
+          fontWeight = FontWeight.MEDIUM;
+          break;
+        case "SemiBold":
+          fontWeight = FontWeight.SEMI_BOLD;
+          break;
+        case "Bold":
+          fontWeight = FontWeight.BOLD;
+          break;
+        case "ExtraBold":
+          fontWeight = FontWeight.EXTRA_BOLD;
+          break;
+        case "Black":
+          fontWeight = FontWeight.BLACK;
+          break;
+      }
+
+      FontPosture fontPosture = FontPosture.REGULAR;
+      switch (fontPostureChoiceBox.getValue()) {
+        case "Regular":
+          fontPosture = FontPosture.REGULAR;
+          break;
+        case "Italic":
+          fontPosture = FontPosture.ITALIC;
+          break;
+      }
+
+      // フォントサイズの計算で用いるFont
+      Font tempFont;
+      // ユーザ独自フォントの場合
+      if (userFontName != null && userFontFile != null) {
+        tempFont = Font.loadFont("file:" + userFontFile.getAbsolutePath(), defaultFontSize);
+      }
+      // 標準フォントの場合
+      else {
+        tempFont = Font.font(fontFamilyName, fontWeight, fontPosture, defaultFontSize);
+      }
+      text.setFont(tempFont);
+      double textWidth = text.getLayoutBounds().getWidth();
+
+      double newFontSize = defaultFontSize * (digitalPreviewStackPane.getWidth() / textWidth);
+      Font displayedFont;
+      // ユーザの独自フォントが選択されている場合は独自フォントファイルを読み込んで表示
+      if (userFontName != null && userFontFile != null) {
+        displayedFont = Font.loadFont("file:" + userFontFile.getAbsolutePath(), newFontSize);
+      }
+      else {
+        displayedFont = Font.font(fontFamilyName, fontWeight, fontPosture, newFontSize);
+      }
+
+      // Labelに調整したフォントを反映
+      timerLabel.setFont(displayedFont);
+    });
+
+    // 前回のTimelineが残っている場合はstopし、StackPaneからLabelを除去
+    if (digitalPreviewTimeline != null) {
+      digitalPreviewTimeline.stop();
+      digitalPreviewStackPane.getChildren().clear();
+    }
+
+    // LabelをStackPaneに追加
+    digitalPreviewStackPane.getChildren().add(timerLabel);
+    
+    // Timelineを用いたデジタル時計の表示
+    digitalPreviewTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        LocalTime time = LocalTime.now();
+        String text = String.format("%02d:%02d:%02d", time.getHour(), time.getMinute(), time.getSecond());
+        timerLabel.setText(text);
+      }
+    }));
+
+    digitalPreviewTimeline.setCycleCount(Timeline.INDEFINITE);
+    digitalPreviewTimeline.play();
   }
 }
