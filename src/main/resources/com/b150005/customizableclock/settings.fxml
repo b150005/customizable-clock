@@ -144,7 +144,7 @@
               </children>
             </HBox>
             <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント色(基本)" />
-            <ColorPicker fx:id="baseFontColorPicker" maxWidth="1.7976931348623157E308" />
+            <ColorPicker fx:id="baseFontColorPicker" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
             <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="フォント色(タイマー直前)" />
             <HBox alignment="CENTER">
               <children>

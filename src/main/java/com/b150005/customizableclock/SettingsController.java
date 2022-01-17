@@ -5,13 +5,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.time.*;
+import java.util.*;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -611,14 +606,62 @@ public class SettingsController implements Initializable {
     digitalPreviewStackPane.getChildren().add(timerLabel);
     
     // Timelineを用いたデジタル時計の表示
-    digitalPreviewTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-        LocalTime time = LocalTime.now();
-        String text = String.format("%02d:%02d:%02d", time.getHour(), time.getMinute(), time.getSecond());
-        timerLabel.setText(text);
-      }
-    }));
+    if (digitalClockModeRadioButton.isSelected() == true) {
+      // フォント色・透明度の設定
+      timerLabel.setTextFill(baseFontColorPicker.getValue());
+      timerLabel.setOpacity(opacitySpinner.getValue());
+
+      digitalPreviewTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+          LocalTime time = LocalTime.now();
+          String text = String.format("%02d:%02d:%02d", time.getHour(), time.getMinute(), time.getSecond());
+          timerLabel.setText(text);
+        }
+      }));
+    }
+    else if (digitalTimerModeRadioButton.isSelected() == true &&
+      timerDatePicker.getValue() != null &&
+      timerHourChoiceBox.getValue() != null &&
+      timerSecondChoiceBox.getValue() != null) {
+      digitalPreviewTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+          // 現在時刻と指定日時を取得
+          LocalDateTime now = LocalDateTime.now();
+          LocalDate date = timerDatePicker.getValue();
+          LocalTime time = LocalTime.of(
+            timerHourChoiceBox.getValue(), 
+            timerMinuteChoiceBox.getValue(), 
+            timerSecondChoiceBox.getValue());
+          LocalDateTime specificDateTime = LocalDateTime.of(date, time);
+
+          // 2つのLocalDateTimeの差分(Duration)を取得
+          java.time.Duration duration = java.time.Duration.between(now, specificDateTime);
+          int hour = (int) duration.toHours();
+          int min = duration.toMinutes() >= 0 ? (int) duration.toMinutes() % 60 : (int) -duration.toMinutes() % 60;
+          int sec = duration.toSeconds() >= 0 ? (int) duration.toSeconds() % 60 : (int) -duration.toSeconds() % 60;
+
+          // フォント色・透明度の設定
+          int beforeMin = beforeMinuteSpinner.getValue();
+          int afterMin = afterMinuteSpinner.getValue();
+          if (duration.toSeconds() >= 0 && duration.toSeconds() <= beforeMin * 60) {
+            timerLabel.setTextFill(beforeFontColorPicker.getValue());
+          }
+          else if (duration.toSeconds() < 0 && -duration.toSeconds() <= afterMin * 60) {
+            timerLabel.setTextFill(afterFontColorPicker.getValue());
+          }
+          else {
+            timerLabel.setTextFill(baseFontColorPicker.getValue());
+          }
+          timerLabel.setOpacity(opacitySpinner.getValue());
+
+
+          String text = String.format("%02d:%02d:%02d", hour, min, sec);
+          timerLabel.setText(text);
+        }
+      }));
+    }
 
     digitalPreviewTimeline.setCycleCount(Timeline.INDEFINITE);
     digitalPreviewTimeline.play();
