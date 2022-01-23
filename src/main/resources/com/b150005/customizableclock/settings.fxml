@@ -64,66 +64,103 @@
               </children>
             </HBox>
             <Separator />
-            <CheckBox fx:id="specificTimeIsOnCheckBox1" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻①" />
+            <CheckBox fx:id="specificFrontAnimationIsOnCheckBox1" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(前面)の表示時刻①" />
             <HBox alignment="CENTER">
               <children>
-                <DatePicker fx:id="specificDatePicker1" />
-                <ChoiceBox fx:id="specificHourChoiceBox1" />
+                <DatePicker fx:id="specificFrontAnimationDatePicker1" />
+                <ChoiceBox fx:id="specificFrontAnimationHourChoiceBox1" />
                 <Label text="時" />
-                <ChoiceBox fx:id="specificMinuteChoiceBox1" />
+                <ChoiceBox fx:id="specificFrontAnimationMinuteChoiceBox1" />
                 <Label text="分" />
-                <ChoiceBox fx:id="specificSecondChoiceBox1" />
+                <ChoiceBox fx:id="specificFrontAnimationSecondChoiceBox1" />
                 <Label text="秒" />
               </children>
             </HBox>
-            <CheckBox fx:id="specificTimeIsOnCheckBox2" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻②" />
+            <CheckBox fx:id="specificFrontAnimationIsOnCheckBox2" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(前面)の表示時刻②" />
             <HBox alignment="CENTER">
               <children>
-                <DatePicker fx:id="specificDatePicker2" />
-                <ChoiceBox fx:id="specificHourChoiceBox2" />
+                <DatePicker fx:id="specificFrontAnimationDatePicker2" />
+                <ChoiceBox fx:id="specificFrontAnimationHourChoiceBox2" />
                 <Label text="時" />
-                <ChoiceBox fx:id="specificMinuteChoiceBox2" />
+                <ChoiceBox fx:id="specificFrontAnimationMinuteChoiceBox2" />
                 <Label text="分" />
-                <ChoiceBox fx:id="specificSecondChoiceBox2" />
+                <ChoiceBox fx:id="specificFrontAnimationSecondChoiceBox2" />
                 <Label text="秒" />
               </children>
             </HBox>
-            <CheckBox fx:id="specificTimeIsOnCheckBox3" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻③" />
+            <CheckBox fx:id="specificFrontAnimationIsOnCheckBox3" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(前面)の表示時刻③" />
             <HBox alignment="CENTER">
               <children>
-                <DatePicker fx:id="specificDatePicker3" />
-                <ChoiceBox fx:id="specificHourChoiceBox3" />
+                <DatePicker fx:id="specificFrontAnimationDatePicker3" />
+                <ChoiceBox fx:id="specificFrontAnimationHourChoiceBox3" />
                 <Label text="時" />
-                <ChoiceBox fx:id="specificMinuteChoiceBox3" />
+                <ChoiceBox fx:id="specificFrontAnimationMinuteChoiceBox3" />
                 <Label text="分" />
-                <ChoiceBox fx:id="specificSecondChoiceBox3" />
+                <ChoiceBox fx:id="specificFrontAnimationSecondChoiceBox3" />
                 <Label text="秒" />
               </children>
             </HBox>
-            <CheckBox fx:id="specificTimeIsOnCheckBox4" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻④" />
+                  <CheckBox fx:id="specificFrontAnimationIsOnCheckBox4" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(前面)の表示時刻③" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificFrontAnimationDatePicker4" />
+                        <ChoiceBox fx:id="specificFrontAnimationHourChoiceBox4" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificFrontAnimationMinuteChoiceBox4" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificFrontAnimationSecondChoiceBox4" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+                  <Separator />
+            <CheckBox fx:id="specificBackAnimationIsOnCheckBox1" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(背面)の表示時刻①" />
             <HBox alignment="CENTER">
               <children>
-                <DatePicker fx:id="specificDatePicker4" />
-                <ChoiceBox fx:id="specificHourChoiceBox4" />
+                <DatePicker fx:id="specificBackAnimationDatePicker1" />
+                <ChoiceBox fx:id="specificBackAnimationHourChoiceBox1" />
                 <Label text="時" />
-                <ChoiceBox fx:id="specificMinuteChoiceBox4" />
+                <ChoiceBox fx:id="specificBackAnimationMinuteChoiceBox1" />
                 <Label text="分" />
-                <ChoiceBox fx:id="specificSecondChoiceBox4" />
+                <ChoiceBox fx:id="specificBackAnimationSecondChoiceBox1" />
                 <Label text="秒" />
               </children>
             </HBox>
-            <CheckBox fx:id="specificTimeIsOnCheckBox5" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション表示時刻⑤" />
+            <CheckBox fx:id="specificBackAnimationIsOnCheckBox2" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(背面)の表示時刻②" />
             <HBox alignment="CENTER">
               <children>
-                <DatePicker fx:id="specificDatePicker5" />
-                <ChoiceBox fx:id="specificHourChoiceBox5" />
+                <DatePicker fx:id="specificBackAnimationDatePicker2" />
+                <ChoiceBox fx:id="specificBackAnimationHourChoiceBox2" />
                 <Label text="時" />
-                <ChoiceBox fx:id="specificMinuteChoiceBox5" />
+                <ChoiceBox fx:id="specificBackAnimationMinuteChoiceBox2" />
                 <Label text="分" />
-                <ChoiceBox fx:id="specificSecondChoiceBox5" />
+                <ChoiceBox fx:id="specificBackAnimationSecondChoiceBox2" />
                 <Label text="秒" />
               </children>
             </HBox>
+                  <CheckBox fx:id="specificBackAnimationIsOnCheckBox3" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(背面)の表示時刻③" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificBackAnimationDatePicker3" />
+                        <ChoiceBox fx:id="specificBackAnimationHourChoiceBox3" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificBackAnimationMinuteChoiceBox3" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificBackAnimationSecondChoiceBox3" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="specificBackAnimationIsOnCheckBox4" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="アニメーション(前面)の表示時刻③" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <DatePicker fx:id="specificBackAnimationDatePicker4" />
+                        <ChoiceBox fx:id="specificBackAnimationHourChoiceBox4" />
+                        <Label text="時" />
+                        <ChoiceBox fx:id="specificBackAnimationMinuteChoiceBox4" />
+                        <Label text="分" />
+                        <ChoiceBox fx:id="specificBackAnimationSecondChoiceBox4" />
+                        <Label text="秒" />
+                     </children>
+                  </HBox>
                   <Separator />
                   <Button fx:id="displayCustomizedClockButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="新規ウィンドウで時計を表示" />
           </children>
