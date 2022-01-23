@@ -145,7 +145,7 @@ public class SettingsController implements Initializable {
   /**
    * デジタル時計に表示するアニメーション
    */
-  private static Timeline digitalAnimationTimeline = null;
+  private static Timeline previewAnimationTimeline = null;
   /**
    * デジタル時計のラベルを変更するアニメーション
    */
@@ -419,8 +419,8 @@ public class SettingsController implements Initializable {
     ImageView hourImageView = new ImageView("file:" + hourFilePathLabel.getText());
     ImageView minuteImageView = new ImageView("file:" + minuteFilePathLabel.getText());
     ImageView secondImageView = new ImageView("file:" + secondFilePathLabel.getText());
-    ImageView frontAnimationImageView = new ImageView("file:" + frontAnimationFilePathLabel.getText());
-    ImageView backAnimationImageView = new ImageView("file:" + backAnimationFilePathLabel.getText());
+    // ImageView frontAnimationImageView = new ImageView("file:" + frontAnimationFilePathLabel.getText());
+    // ImageView backAnimationImageView = new ImageView("file:" + backAnimationFilePathLabel.getText());
 
     // アナログ時計のList
     List<ImageView> clockImageViewList = new ArrayList<ImageView>(Arrays.asList(
@@ -430,37 +430,37 @@ public class SettingsController implements Initializable {
       secondImageView
     ));
 
-    // アニメーションのList
-    List<ImageView> animationImageViewList = new ArrayList<ImageView>();
-    if (backAnimationIsOnCheckBox.isSelected() == true) {
-      animationImageViewList.add(backAnimationImageView);
-    }
-    if (frontAnimationIsOnCheckBox.isSelected() == true) {
-      animationImageViewList.add(frontAnimationImageView);
-    }
+    // // アニメーションのList
+    // List<ImageView> animationImageViewList = new ArrayList<ImageView>();
+    // if (backAnimationIsOnCheckBox.isSelected() == true) {
+    //   animationImageViewList.add(backAnimationImageView);
+    // }
+    // if (frontAnimationIsOnCheckBox.isSelected() == true) {
+    //   animationImageViewList.add(frontAnimationImageView);
+    // }
 
     // Imageファイルが存在する場合はStackPaneへの表示対象として追加
     // アニメーションの前面表示フラグに応じてObservableListに追加する順番を変更
     ObservableList<ImageView> willAlwaysShowImageViewObservableList= FXCollections.observableArrayList();
-    ObservableList<ImageView> willSpecificShowImageViewObservableList = FXCollections.observableArrayList();
+    // ObservableList<ImageView> willSpecificShowImageViewObservableList = FXCollections.observableArrayList();
     if (displayAnimationInFrontCheckBox.isSelected() == true) {
       addFoundImageViews(clockImageViewList, willAlwaysShowImageViewObservableList);
-      if (frontAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
-        // 指定時のみ表示フラグがTrueの場合は、アニメーションをwillSpecificShowImageViewObservableListに追加
-        addFoundImageViews(animationImageViewList, willSpecificShowImageViewObservableList);
-      }
-      else {
-        addFoundImageViews(animationImageViewList, willAlwaysShowImageViewObservableList);
-      }
+      // if (frontAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
+      //   // 指定時のみ表示フラグがTrueの場合は、アニメーションをwillSpecificShowImageViewObservableListに追加
+      //   addFoundImageViews(animationImageViewList, willSpecificShowImageViewObservableList);
+      // }
+      // else {
+      //   addFoundImageViews(animationImageViewList, willAlwaysShowImageViewObservableList);
+      // }
     }
     else {
-      if (backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
-        // 指定時のみ表示フラグがTrueの場合は、アニメーションをwillSpecificShowImageViewObservableListに追加
-        addFoundImageViews(animationImageViewList, willSpecificShowImageViewObservableList);
-      }
-      else {
-        addFoundImageViews(animationImageViewList, willAlwaysShowImageViewObservableList);
-      }
+      // if (backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
+      //   // 指定時のみ表示フラグがTrueの場合は、アニメーションをwillSpecificShowImageViewObservableListに追加
+      //   addFoundImageViews(animationImageViewList, willSpecificShowImageViewObservableList);
+      // }
+      // else {
+      //   addFoundImageViews(animationImageViewList, willAlwaysShowImageViewObservableList);
+      // }
       addFoundImageViews(clockImageViewList, willAlwaysShowImageViewObservableList);
     }
 
@@ -478,18 +478,18 @@ public class SettingsController implements Initializable {
         imgView.fitHeightProperty().bind(paneWidth);
       }
     }
-    for (ImageView imgView: willSpecificShowImageViewObservableList) {
-      ReadOnlyDoubleProperty paneWidth = analogPreviewStackPane.widthProperty();
-      ReadOnlyDoubleProperty paneHeight = analogPreviewStackPane.heightProperty();
-      if (analogPreviewStackPane.getWidth() > analogPreviewStackPane.getHeight()) {
-        imgView.fitWidthProperty().bind(paneHeight);
-        imgView.fitHeightProperty().bind(paneHeight);
-      }
-      else {
-        imgView.fitWidthProperty().bind(paneWidth);
-        imgView.fitHeightProperty().bind(paneWidth);
-      }
-    }
+    // for (ImageView imgView: willSpecificShowImageViewObservableList) {
+    //   ReadOnlyDoubleProperty paneWidth = analogPreviewStackPane.widthProperty();
+    //   ReadOnlyDoubleProperty paneHeight = analogPreviewStackPane.heightProperty();
+    //   if (analogPreviewStackPane.getWidth() > analogPreviewStackPane.getHeight()) {
+    //     imgView.fitWidthProperty().bind(paneHeight);
+    //     imgView.fitHeightProperty().bind(paneHeight);
+    //   }
+    //   else {
+    //     imgView.fitWidthProperty().bind(paneWidth);
+    //     imgView.fitHeightProperty().bind(paneWidth);
+    //   }
+    // }
 
     // StackPaneの初期化・常時表示するImageViewのセット
     analogPreviewStackPane.getChildren().clear();
@@ -516,238 +516,240 @@ public class SettingsController implements Initializable {
       System.out.println("Timelineを停止しました");
     }
 
-    // 指定時アニメーションファイルが存在する場合のみ実行
-    if (willSpecificShowImageViewObservableList.size() > 0) {
-      // 指定時のみ表示するアニメーションの表示時刻と表示するアニメーションの取得
-      // → 表示する際は表示時刻のインデックスに対応するアニメーションを表示
-      List<LocalDateTime> specificDateTimeList = new ArrayList<LocalDateTime>();
-      List<ImageView> specificAnimationList = new ArrayList<ImageView>();
+    this.addAnimationsOntoStackPane(analogPreviewStackPane, previewAnimationTimeline);
 
-      // アニメーション(前面)に設定されたgifファイルが有効である場合のみ
-      if (willSpecificShowImageViewObservableList.contains(frontAnimationImageView) == true) {
-        // アニメーション(前面)の表示時刻①
-        if (specificFrontAnimationIsOnCheckBox1.isSelected() == true && 
-        specificFrontAnimationHourChoiceBox1.getValue() != null &&
-        specificFrontAnimationMinuteChoiceBox1.getValue() != null &&
-        specificFrontAnimationSecondChoiceBox1.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificFrontAnimationDatePicker1.getValue(), 
-            LocalTime.of(specificFrontAnimationHourChoiceBox1.getValue(), specificFrontAnimationMinuteChoiceBox1.getValue(), specificFrontAnimationSecondChoiceBox1.getValue())
-          ));
+    // // 指定時アニメーションファイルが存在する場合のみ実行
+    // if (willSpecificShowImageViewObservableList.size() > 0) {
+    //   // 指定時のみ表示するアニメーションの表示時刻と表示するアニメーションの取得
+    //   // → 表示する際は表示時刻のインデックスに対応するアニメーションを表示
+    //   List<LocalDateTime> specificDateTimeList = new ArrayList<LocalDateTime>();
+    //   List<ImageView> specificAnimationList = new ArrayList<ImageView>();
 
-          // アニメーションの取得
-          specificAnimationList.add(frontAnimationImageView);
-        }
+    //   // アニメーション(前面)に設定されたgifファイルが有効である場合のみ
+    //   if (willSpecificShowImageViewObservableList.contains(frontAnimationImageView) == true) {
+    //     // アニメーション(前面)の表示時刻①
+    //     if (specificFrontAnimationIsOnCheckBox1.isSelected() == true && 
+    //     specificFrontAnimationHourChoiceBox1.getValue() != null &&
+    //     specificFrontAnimationMinuteChoiceBox1.getValue() != null &&
+    //     specificFrontAnimationSecondChoiceBox1.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificFrontAnimationDatePicker1.getValue(), 
+    //         LocalTime.of(specificFrontAnimationHourChoiceBox1.getValue(), specificFrontAnimationMinuteChoiceBox1.getValue(), specificFrontAnimationSecondChoiceBox1.getValue())
+    //       ));
 
-        // アニメーション(前面)の表示時刻②
-        if (specificFrontAnimationIsOnCheckBox2.isSelected() == true && 
-        specificFrontAnimationHourChoiceBox2.getValue() != null &&
-        specificFrontAnimationMinuteChoiceBox2.getValue() != null &&
-        specificFrontAnimationSecondChoiceBox2.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificFrontAnimationDatePicker2.getValue(), 
-            LocalTime.of(specificFrontAnimationHourChoiceBox2.getValue(), specificFrontAnimationMinuteChoiceBox2.getValue(), specificFrontAnimationSecondChoiceBox2.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(frontAnimationImageView);
+    //     }
 
-          // アニメーションの取得
-          specificAnimationList.add(frontAnimationImageView);
-        }
+    //     // アニメーション(前面)の表示時刻②
+    //     if (specificFrontAnimationIsOnCheckBox2.isSelected() == true && 
+    //     specificFrontAnimationHourChoiceBox2.getValue() != null &&
+    //     specificFrontAnimationMinuteChoiceBox2.getValue() != null &&
+    //     specificFrontAnimationSecondChoiceBox2.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificFrontAnimationDatePicker2.getValue(), 
+    //         LocalTime.of(specificFrontAnimationHourChoiceBox2.getValue(), specificFrontAnimationMinuteChoiceBox2.getValue(), specificFrontAnimationSecondChoiceBox2.getValue())
+    //       ));
 
-        // アニメーション(前面)の表示時刻③
-        if (specificFrontAnimationIsOnCheckBox3.isSelected() == true && 
-        specificFrontAnimationHourChoiceBox3.getValue() != null &&
-        specificFrontAnimationMinuteChoiceBox3.getValue() != null &&
-        specificFrontAnimationSecondChoiceBox3.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificFrontAnimationDatePicker3.getValue(), 
-            LocalTime.of(specificFrontAnimationHourChoiceBox3.getValue(), specificFrontAnimationMinuteChoiceBox3.getValue(), specificFrontAnimationSecondChoiceBox3.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(frontAnimationImageView);
+    //     }
 
-          // アニメーションの取得
-          specificAnimationList.add(frontAnimationImageView);
-        }
+    //     // アニメーション(前面)の表示時刻③
+    //     if (specificFrontAnimationIsOnCheckBox3.isSelected() == true && 
+    //     specificFrontAnimationHourChoiceBox3.getValue() != null &&
+    //     specificFrontAnimationMinuteChoiceBox3.getValue() != null &&
+    //     specificFrontAnimationSecondChoiceBox3.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificFrontAnimationDatePicker3.getValue(), 
+    //         LocalTime.of(specificFrontAnimationHourChoiceBox3.getValue(), specificFrontAnimationMinuteChoiceBox3.getValue(), specificFrontAnimationSecondChoiceBox3.getValue())
+    //       ));
 
-        // アニメーション(前面)の表示時刻④
-        if (specificFrontAnimationIsOnCheckBox4.isSelected() == true && 
-        specificFrontAnimationHourChoiceBox4.getValue() != null &&
-        specificFrontAnimationMinuteChoiceBox4.getValue() != null &&
-        specificFrontAnimationSecondChoiceBox4.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificFrontAnimationDatePicker4.getValue(), 
-            LocalTime.of(specificFrontAnimationHourChoiceBox4.getValue(), specificFrontAnimationMinuteChoiceBox4.getValue(), specificFrontAnimationSecondChoiceBox4.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(frontAnimationImageView);
+    //     }
 
-          // アニメーションの取得
-          specificAnimationList.add(frontAnimationImageView);
-        }
-      }
+    //     // アニメーション(前面)の表示時刻④
+    //     if (specificFrontAnimationIsOnCheckBox4.isSelected() == true && 
+    //     specificFrontAnimationHourChoiceBox4.getValue() != null &&
+    //     specificFrontAnimationMinuteChoiceBox4.getValue() != null &&
+    //     specificFrontAnimationSecondChoiceBox4.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificFrontAnimationDatePicker4.getValue(), 
+    //         LocalTime.of(specificFrontAnimationHourChoiceBox4.getValue(), specificFrontAnimationMinuteChoiceBox4.getValue(), specificFrontAnimationSecondChoiceBox4.getValue())
+    //       ));
 
-      // アニメーション(背面)に設定されたgifファイルが有効である場合のみ
-      if (willSpecificShowImageViewObservableList.contains(backAnimationImageView) == true) {
-        // アニメーション(背面)の表示時刻①
-        if (specificBackAnimationIsOnCheckBox1.isSelected() == true && 
-        specificBackAnimationHourChoiceBox1.getValue() != null &&
-        specificBackAnimationMinuteChoiceBox1.getValue() != null &&
-        specificBackAnimationSecondChoiceBox1.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificBackAnimationDatePicker1.getValue(), 
-            LocalTime.of(specificBackAnimationHourChoiceBox1.getValue(), specificBackAnimationMinuteChoiceBox1.getValue(), specificBackAnimationSecondChoiceBox1.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(frontAnimationImageView);
+    //     }
+    //   }
 
-          // アニメーションの取得
-          specificAnimationList.add(backAnimationImageView);
-        }
+    //   // アニメーション(背面)に設定されたgifファイルが有効である場合のみ
+    //   if (willSpecificShowImageViewObservableList.contains(backAnimationImageView) == true) {
+    //     // アニメーション(背面)の表示時刻①
+    //     if (specificBackAnimationIsOnCheckBox1.isSelected() == true && 
+    //     specificBackAnimationHourChoiceBox1.getValue() != null &&
+    //     specificBackAnimationMinuteChoiceBox1.getValue() != null &&
+    //     specificBackAnimationSecondChoiceBox1.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificBackAnimationDatePicker1.getValue(), 
+    //         LocalTime.of(specificBackAnimationHourChoiceBox1.getValue(), specificBackAnimationMinuteChoiceBox1.getValue(), specificBackAnimationSecondChoiceBox1.getValue())
+    //       ));
 
-        // アニメーション(背面)の表示時刻②
-        if (specificBackAnimationIsOnCheckBox2.isSelected() == true && 
-        specificBackAnimationHourChoiceBox2.getValue() != null &&
-        specificBackAnimationMinuteChoiceBox2.getValue() != null &&
-        specificBackAnimationSecondChoiceBox2.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificBackAnimationDatePicker2.getValue(), 
-            LocalTime.of(specificBackAnimationHourChoiceBox2.getValue(), specificBackAnimationMinuteChoiceBox2.getValue(), specificBackAnimationSecondChoiceBox2.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(backAnimationImageView);
+    //     }
 
-          // アニメーションの取得
-          specificAnimationList.add(backAnimationImageView);
-        }
+    //     // アニメーション(背面)の表示時刻②
+    //     if (specificBackAnimationIsOnCheckBox2.isSelected() == true && 
+    //     specificBackAnimationHourChoiceBox2.getValue() != null &&
+    //     specificBackAnimationMinuteChoiceBox2.getValue() != null &&
+    //     specificBackAnimationSecondChoiceBox2.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificBackAnimationDatePicker2.getValue(), 
+    //         LocalTime.of(specificBackAnimationHourChoiceBox2.getValue(), specificBackAnimationMinuteChoiceBox2.getValue(), specificBackAnimationSecondChoiceBox2.getValue())
+    //       ));
 
-        // アニメーション(背面)の表示時刻③
-        if (specificBackAnimationIsOnCheckBox3.isSelected() == true && 
-        specificBackAnimationHourChoiceBox3.getValue() != null &&
-        specificBackAnimationMinuteChoiceBox3.getValue() != null &&
-        specificBackAnimationSecondChoiceBox3.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificBackAnimationDatePicker3.getValue(), 
-            LocalTime.of(specificBackAnimationHourChoiceBox3.getValue(), specificBackAnimationMinuteChoiceBox3.getValue(), specificBackAnimationSecondChoiceBox3.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(backAnimationImageView);
+    //     }
 
-          // アニメーションの取得
-          specificAnimationList.add(backAnimationImageView);
-        }
+    //     // アニメーション(背面)の表示時刻③
+    //     if (specificBackAnimationIsOnCheckBox3.isSelected() == true && 
+    //     specificBackAnimationHourChoiceBox3.getValue() != null &&
+    //     specificBackAnimationMinuteChoiceBox3.getValue() != null &&
+    //     specificBackAnimationSecondChoiceBox3.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificBackAnimationDatePicker3.getValue(), 
+    //         LocalTime.of(specificBackAnimationHourChoiceBox3.getValue(), specificBackAnimationMinuteChoiceBox3.getValue(), specificBackAnimationSecondChoiceBox3.getValue())
+    //       ));
 
-        // アニメーション(背面)の表示時刻④
-        if (specificBackAnimationIsOnCheckBox4.isSelected() == true && 
-        specificBackAnimationHourChoiceBox4.getValue() != null &&
-        specificBackAnimationMinuteChoiceBox4.getValue() != null &&
-        specificBackAnimationSecondChoiceBox4.getValue() != null) {
-          // 表示時刻の取得
-          specificDateTimeList.add(LocalDateTime.of(
-            specificBackAnimationDatePicker4.getValue(), 
-            LocalTime.of(specificBackAnimationHourChoiceBox4.getValue(), specificBackAnimationMinuteChoiceBox4.getValue(), specificBackAnimationSecondChoiceBox4.getValue())
-          ));
+    //       // アニメーションの取得
+    //       specificAnimationList.add(backAnimationImageView);
+    //     }
 
-          // アニメーションの取得
-          specificAnimationList.add(backAnimationImageView);
-        }
-      }
+    //     // アニメーション(背面)の表示時刻④
+    //     if (specificBackAnimationIsOnCheckBox4.isSelected() == true && 
+    //     specificBackAnimationHourChoiceBox4.getValue() != null &&
+    //     specificBackAnimationMinuteChoiceBox4.getValue() != null &&
+    //     specificBackAnimationSecondChoiceBox4.getValue() != null) {
+    //       // 表示時刻の取得
+    //       specificDateTimeList.add(LocalDateTime.of(
+    //         specificBackAnimationDatePicker4.getValue(), 
+    //         LocalTime.of(specificBackAnimationHourChoiceBox4.getValue(), specificBackAnimationMinuteChoiceBox4.getValue(), specificBackAnimationSecondChoiceBox4.getValue())
+    //       ));
 
-      analogAnimationTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-          LocalDateTime detailNow = LocalDateTime.now();
-          LocalDateTime now = LocalDateTime.of(
-            detailNow.toLocalDate(), 
-            LocalTime.of(detailNow.getHour(), detailNow.getMinute(), detailNow.getSecond()));
-          System.out.println(now);
+    //       // アニメーションの取得
+    //       specificAnimationList.add(backAnimationImageView);
+    //     }
+    //   }
+
+    //   analogAnimationTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+    //     @Override
+    //     public void handle(ActionEvent event) {
+    //       LocalDateTime detailNow = LocalDateTime.now();
+    //       LocalDateTime now = LocalDateTime.of(
+    //         detailNow.toLocalDate(), 
+    //         LocalTime.of(detailNow.getHour(), detailNow.getMinute(), detailNow.getSecond()));
+    //       System.out.println(now);
           
-          for (int i = 0; i < specificDateTimeList.size(); i++) {
-            if (now.equals(specificDateTimeList.get(i)) == true) {
-              // アニメーションの前面表示フラグに応じてStackPaneへの追加位置を変更
+    //       for (int i = 0; i < specificDateTimeList.size(); i++) {
+    //         if (now.equals(specificDateTimeList.get(i)) == true) {
+    //           // アニメーションの前面表示フラグに応じてStackPaneへの追加位置を変更
 
-              /**
-               * 後ろのindexほど前面に表示される
-               */
+    //           /**
+    //            * 後ろのindexほど前面に表示される
+    //            */
 
-              // 前面表示 かつ アニメーション(前面) の場合は最後のindexに追加
-              if (displayAnimationInFrontCheckBox.isSelected() == true && specificAnimationList.get(i).equals(frontAnimationImageView) == true) {
-                // LoopしないImageを表示の直前で読み込む
-                Image frontAnimationImage = new Image("file:" + frontAnimationFilePathLabel.getText(), true);
-                specificAnimationList.get(i).setImage(frontAnimationImage);
+    //           // 前面表示 かつ アニメーション(前面) の場合は最後のindexに追加
+    //           if (displayAnimationInFrontCheckBox.isSelected() == true && specificAnimationList.get(i).equals(frontAnimationImageView) == true) {
+    //             // LoopしないImageを表示の直前で読み込む
+    //             Image frontAnimationImage = new Image("file:" + frontAnimationFilePathLabel.getText(), true);
+    //             specificAnimationList.get(i).setImage(frontAnimationImage);
 
-                // StackPaneへのImageViewの追加
-                analogPreviewStackPane.getChildren().add(specificAnimationList.get(i));
+    //             // StackPaneへのImageViewの追加
+    //             analogPreviewStackPane.getChildren().add(specificAnimationList.get(i));
 
-                System.out.println("最前面に挿入");
-              }
+    //             System.out.println("最前面に挿入");
+    //           }
 
-              // 前面表示 かつ アニメーション(背面)の場合
-              // → StackPaneにアニメーション(前面)が含まれているかどうかで処理が分岐
-              else if (displayAnimationInFrontCheckBox.isSelected() == true && specificAnimationList.get(i).equals(backAnimationImageView) == true) {
-                // 最前面にアニメーション(前面)が含まれていれば最後のindexの1つ前に挿入
-                ObservableList<Node> showingImageViewObservableList = analogPreviewStackPane.getChildren();
-                String imageUrl = ((ImageView) showingImageViewObservableList.get(showingImageViewObservableList.size() - 1)).getImage().getUrl();
+    //           // 前面表示 かつ アニメーション(背面)の場合
+    //           // → StackPaneにアニメーション(前面)が含まれているかどうかで処理が分岐
+    //           else if (displayAnimationInFrontCheckBox.isSelected() == true && specificAnimationList.get(i).equals(backAnimationImageView) == true) {
+    //             // 最前面にアニメーション(前面)が含まれていれば最後のindexの1つ前に挿入
+    //             ObservableList<Node> showingImageViewObservableList = analogPreviewStackPane.getChildren();
+    //             String imageUrl = ((ImageView) showingImageViewObservableList.get(showingImageViewObservableList.size() - 1)).getImage().getUrl();
 
-                // LoopしないImageを表示の直前で読み込む
-                Image backAnimationImage = new Image("file:" + backAnimationFilePathLabel.getText(), true);
-                specificAnimationList.get(i).setImage(backAnimationImage);
+    //             // LoopしないImageを表示の直前で読み込む
+    //             Image backAnimationImage = new Image("file:" + backAnimationFilePathLabel.getText(), true);
+    //             specificAnimationList.get(i).setImage(backAnimationImage);
 
-                // StackPaneへのImageViewの追加
-                if (imageUrl.equals(frontAnimationImageView.getImage().getUrl()) == true) {
-                  analogPreviewStackPane.getChildren().add(analogPreviewStackPane.getChildren().size() - 2, specificAnimationList.get(i));
+    //             // StackPaneへのImageViewの追加
+    //             if (imageUrl.equals(frontAnimationImageView.getImage().getUrl()) == true) {
+    //               analogPreviewStackPane.getChildren().add(analogPreviewStackPane.getChildren().size() - 2, specificAnimationList.get(i));
 
-                  System.out.println("前から2番目に挿入");
-                }
-                // アニメーション(前面)が含まれていなれば最後のindexに挿入
-                else {
-                  analogPreviewStackPane.getChildren().add(specificAnimationList.get(i));
+    //               System.out.println("前から2番目に挿入");
+    //             }
+    //             // アニメーション(前面)が含まれていなれば最後のindexに挿入
+    //             else {
+    //               analogPreviewStackPane.getChildren().add(specificAnimationList.get(i));
 
-                  System.out.println("最前面に挿入");
-                }
-              }
+    //               System.out.println("最前面に挿入");
+    //             }
+    //           }
 
-              // 前面表示でない かつ アニメーション(前面)の場合
-              // → StackPaneにアニメーション(背面)が含まれているかどうかで処理が分岐
-              else if (displayAnimationInFrontCheckBox.isSelected() == false && specificAnimationList.get(i).equals(frontAnimationImageView) == true) {
-                // アニメーション(背面)が含まれていれば最初のindexの1つ後ろに挿入
-                ObservableList<Node> showingImageViewObservableList = analogPreviewStackPane.getChildren();
-                String imageUrl = ((ImageView) showingImageViewObservableList.get(0)).getImage().getUrl();
+    //           // 前面表示でない かつ アニメーション(前面)の場合
+    //           // → StackPaneにアニメーション(背面)が含まれているかどうかで処理が分岐
+    //           else if (displayAnimationInFrontCheckBox.isSelected() == false && specificAnimationList.get(i).equals(frontAnimationImageView) == true) {
+    //             // アニメーション(背面)が含まれていれば最初のindexの1つ後ろに挿入
+    //             ObservableList<Node> showingImageViewObservableList = analogPreviewStackPane.getChildren();
+    //             String imageUrl = ((ImageView) showingImageViewObservableList.get(0)).getImage().getUrl();
 
-                // LoopしないImageを表示の直前で読み込む
-                Image frontAnimationImage = new Image("file:" + frontAnimationFilePathLabel.getText(), true);
-                specificAnimationList.get(i).setImage(frontAnimationImage);
+    //             // LoopしないImageを表示の直前で読み込む
+    //             Image frontAnimationImage = new Image("file:" + frontAnimationFilePathLabel.getText(), true);
+    //             specificAnimationList.get(i).setImage(frontAnimationImage);
 
-                // StackPaneへのImageViewの追加
-                if (imageUrl.equals(backAnimationImageView.getImage().getUrl()) == true) {
-                  analogPreviewStackPane.getChildren().add(1, specificAnimationList.get(i));
+    //             // StackPaneへのImageViewの追加
+    //             if (imageUrl.equals(backAnimationImageView.getImage().getUrl()) == true) {
+    //               analogPreviewStackPane.getChildren().add(1, specificAnimationList.get(i));
 
-                  System.out.println("後ろから2番目に挿入");
-                }
-                // アニメーション(背面)が含まれていなれば最初のindexに挿入
-                else {
-                  analogPreviewStackPane.getChildren().add(0, specificAnimationList.get(i));
+    //               System.out.println("後ろから2番目に挿入");
+    //             }
+    //             // アニメーション(背面)が含まれていなれば最初のindexに挿入
+    //             else {
+    //               analogPreviewStackPane.getChildren().add(0, specificAnimationList.get(i));
 
-                  System.out.println("最背面に挿入");
-                }
-              }
+    //               System.out.println("最背面に挿入");
+    //             }
+    //           }
 
-              // 前面表示でない かつ アニメーション(背面)の場合は最初のindexに追加
-              else if (displayAnimationInFrontCheckBox.isSelected() == false && specificAnimationList.get(i).equals(backAnimationImageView) == true) {
-                // LoopしないImageを表示の直前で読み込む
-                Image backAnimationImage = new Image("file:" + backAnimationFilePathLabel.getText(), true);
-                specificAnimationList.get(i).setImage(backAnimationImage);
+    //           // 前面表示でない かつ アニメーション(背面)の場合は最初のindexに追加
+    //           else if (displayAnimationInFrontCheckBox.isSelected() == false && specificAnimationList.get(i).equals(backAnimationImageView) == true) {
+    //             // LoopしないImageを表示の直前で読み込む
+    //             Image backAnimationImage = new Image("file:" + backAnimationFilePathLabel.getText(), true);
+    //             specificAnimationList.get(i).setImage(backAnimationImage);
 
-                // StackPaneへのImageViewの追加
-                analogPreviewStackPane.getChildren().add(0, specificAnimationList.get(i));
+    //             // StackPaneへのImageViewの追加
+    //             analogPreviewStackPane.getChildren().add(0, specificAnimationList.get(i));
 
-                System.out.println("最背面に挿入");
-              }
-            }
-          }
-        }
-      }));
+    //             System.out.println("最背面に挿入");
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }));
 
-      // analogAnimationTimelineの開始
-      analogAnimationTimeline.setCycleCount(Timeline.INDEFINITE);
-      analogAnimationTimeline.play();
-    }
+    //   // analogAnimationTimelineの開始
+    //   analogAnimationTimeline.setCycleCount(Timeline.INDEFINITE);
+    //   analogAnimationTimeline.play();
+    // }
   }
 
   /**
@@ -983,5 +985,235 @@ public class SettingsController implements Initializable {
 
     digitalLabelTimeline.setCycleCount(Timeline.INDEFINITE);
     digitalLabelTimeline.play();
+  }
+
+  /**
+   * アニメーション以外のNodeが追加された状態のStackPaneにアニメーションを追加する
+   * @param stackPane アニメーション以外のNodeが追加された状態のStackPane
+   * @param frontAnimationUrl アニメーション(前面)のURL
+   * @param backAnimationUrl アニメーション(背面)のURL
+   */
+  private void addAnimationsOntoStackPane(StackPane stackPane, Timeline animationTimeline) {
+    // Timelineの初期化
+    if (animationTimeline != null) {
+      animationTimeline.stop();
+      animationTimeline = null;
+
+      System.out.println("Timelineを停止");
+    }
+
+    // アニメーションを表示しない設定の場合は何もしない
+    if (frontAnimationIsOnCheckBox.isSelected() == false && backAnimationIsOnCheckBox.isSelected() == false) {
+      return;
+    }
+
+    // アニメーションを表示する場合は常時アニメーションを表示するためのImageViewを追加しておく
+    ImageView frontAnimationImageView = new ImageView();
+    ImageView backAnimationImageView = new ImageView();
+    // アニメーションImageViewの幅・高さをStackPaneにバインド
+    ReadOnlyDoubleProperty paneWidth = stackPane.widthProperty();
+    ReadOnlyDoubleProperty paneHeight = stackPane.heightProperty();
+    if (stackPane.getWidth() > stackPane.getHeight()) {
+      frontAnimationImageView.fitWidthProperty().bind(paneHeight);
+      frontAnimationImageView.fitHeightProperty().bind(paneHeight);
+      backAnimationImageView.fitWidthProperty().bind(paneHeight);
+      backAnimationImageView.fitHeightProperty().bind(paneHeight);
+    }
+    else {
+      frontAnimationImageView.fitWidthProperty().bind(paneWidth);
+      frontAnimationImageView.fitHeightProperty().bind(paneWidth);
+      backAnimationImageView.fitWidthProperty().bind(paneWidth);
+      backAnimationImageView.fitHeightProperty().bind(paneWidth);
+    }
+    // アニメーションを前面に表示する場合
+    if (displayAnimationInFrontCheckBox.isSelected() == true) {
+      stackPane.getChildren().add(backAnimationImageView);
+      stackPane.getChildren().add(frontAnimationImageView);
+    }
+    // アニメーションを背面に表示する場合
+    else {
+      stackPane.getChildren().add(0, backAnimationImageView);
+      stackPane.getChildren().add(1, frontAnimationImageView);
+    }
+
+    String frontAnimationUrl = "file:" + frontAnimationFilePathLabel.getText();
+    String backAnimationUrl = "file:" + backAnimationFilePathLabel.getText();
+    Image frontAnimationImage = new Image(frontAnimationUrl);
+    Image backAnimationImage = new Image(backAnimationUrl);
+    
+    /**
+     * 常時アニメーション(前面)
+     */
+    // ObservableList<Node> stackPaneNodes = stackPane.getChildren();
+    if (frontAnimationIsOnCheckBox.isSelected() == true && frontAnimationImage.errorProperty().get() == false && frontAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == false) {
+      frontAnimationImageView.setImage(frontAnimationImage);
+    }
+    /**
+     * 常時アニメーション(背面)
+     */
+    if (backAnimationIsOnCheckBox.isSelected() == true && backAnimationImage.errorProperty().get() == false && backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == false) {
+      backAnimationImageView.setImage(backAnimationImage);
+    }
+
+    // 指定時アニメーションを表示しない場合はここで処理が終了
+    if (frontAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == false && backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == false) {
+      return;
+    }
+
+    /**
+     * 指定時アニメーション
+     */
+
+    // 指定時アニメーションの有効な表示時刻を取得
+    List<LocalDateTime> specificDateTimeList = new ArrayList<LocalDateTime>();
+    List<AnimationType> specificAnimationTypeList = new ArrayList<AnimationType>();
+    // アニメーション(前面)の表示時刻
+    if (frontAnimationIsOnCheckBox.isSelected() == true && frontAnimationImage.errorProperty().get() == false && frontAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
+      if (specificFrontAnimationIsOnCheckBox1.isSelected() == true && 
+      specificFrontAnimationDatePicker1.getValue() != null && 
+      specificFrontAnimationHourChoiceBox1.getValue() != null && 
+      specificFrontAnimationMinuteChoiceBox1.getValue() != null && 
+      specificFrontAnimationSecondChoiceBox1.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificFrontAnimationDatePicker1.getValue(), 
+          LocalTime.of(specificFrontAnimationHourChoiceBox1.getValue(), specificFrontAnimationMinuteChoiceBox1.getValue(), specificFrontAnimationSecondChoiceBox1.getValue())
+        ));
+
+        specificAnimationTypeList.add(AnimationType.Front);
+      }
+      if (specificFrontAnimationIsOnCheckBox2.isSelected() == true && 
+      specificFrontAnimationDatePicker2.getValue() != null && 
+      specificFrontAnimationHourChoiceBox2.getValue() != null && 
+      specificFrontAnimationMinuteChoiceBox2.getValue() != null && 
+      specificFrontAnimationSecondChoiceBox2.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificFrontAnimationDatePicker2.getValue(), 
+          LocalTime.of(specificFrontAnimationHourChoiceBox2.getValue(), specificFrontAnimationMinuteChoiceBox2.getValue(), specificFrontAnimationSecondChoiceBox2.getValue())
+        ));
+        
+        specificAnimationTypeList.add(AnimationType.Front);
+      }
+      if (specificFrontAnimationIsOnCheckBox3.isSelected() == true && 
+      specificFrontAnimationDatePicker3.getValue() != null && 
+      specificFrontAnimationHourChoiceBox3.getValue() != null && 
+      specificFrontAnimationMinuteChoiceBox3.getValue() != null && 
+      specificFrontAnimationSecondChoiceBox3.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificFrontAnimationDatePicker3.getValue(), 
+          LocalTime.of(specificFrontAnimationHourChoiceBox3.getValue(), specificFrontAnimationMinuteChoiceBox3.getValue(), specificFrontAnimationSecondChoiceBox3.getValue())
+        ));
+        
+        specificAnimationTypeList.add(AnimationType.Front);
+      }
+      if (specificFrontAnimationIsOnCheckBox4.isSelected() == true && 
+      specificFrontAnimationDatePicker4.getValue() != null && 
+      specificFrontAnimationHourChoiceBox4.getValue() != null && 
+      specificFrontAnimationMinuteChoiceBox4.getValue() != null && 
+      specificFrontAnimationSecondChoiceBox4.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificFrontAnimationDatePicker4.getValue(), 
+          LocalTime.of(specificFrontAnimationHourChoiceBox4.getValue(), specificFrontAnimationMinuteChoiceBox4.getValue(), specificFrontAnimationSecondChoiceBox4.getValue())
+        ));
+        
+        specificAnimationTypeList.add(AnimationType.Front);
+      }
+    }
+
+    // アニメーション(背面)の表示時刻
+    if (backAnimationIsOnCheckBox.isSelected() == true && backAnimationImage.errorProperty().get() == false && backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == false) {
+      if (specificBackAnimationIsOnCheckBox1.isSelected() == true && 
+      specificBackAnimationDatePicker1.getValue() != null && 
+      specificBackAnimationHourChoiceBox1.getValue() != null && 
+      specificBackAnimationMinuteChoiceBox1.getValue() != null && 
+      specificBackAnimationSecondChoiceBox1.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificBackAnimationDatePicker1.getValue(), 
+          LocalTime.of(specificBackAnimationHourChoiceBox1.getValue(), specificBackAnimationMinuteChoiceBox1.getValue(), specificBackAnimationSecondChoiceBox1.getValue())
+        ));
+        
+        specificAnimationTypeList.add(AnimationType.Back);
+      }
+      if (specificBackAnimationIsOnCheckBox2.isSelected() == true && 
+      specificBackAnimationDatePicker2.getValue() != null && 
+      specificBackAnimationHourChoiceBox2.getValue() != null && 
+      specificBackAnimationMinuteChoiceBox2.getValue() != null && 
+      specificBackAnimationSecondChoiceBox2.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificBackAnimationDatePicker2.getValue(), 
+          LocalTime.of(specificBackAnimationHourChoiceBox2.getValue(), specificBackAnimationMinuteChoiceBox2.getValue(), specificBackAnimationSecondChoiceBox2.getValue())
+        ));
+        
+        specificAnimationTypeList.add(AnimationType.Back);
+      }
+      if (specificBackAnimationIsOnCheckBox3.isSelected() == true && 
+      specificBackAnimationDatePicker3.getValue() != null && 
+      specificBackAnimationHourChoiceBox3.getValue() != null && 
+      specificBackAnimationMinuteChoiceBox3.getValue() != null && 
+      specificBackAnimationSecondChoiceBox3.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificBackAnimationDatePicker3.getValue(), 
+          LocalTime.of(specificBackAnimationHourChoiceBox3.getValue(), specificBackAnimationMinuteChoiceBox3.getValue(), specificBackAnimationSecondChoiceBox3.getValue())
+        ));
+
+        specificAnimationTypeList.add(AnimationType.Back);
+      }
+      if (specificBackAnimationIsOnCheckBox4.isSelected() == true && 
+      specificBackAnimationDatePicker4.getValue() != null && 
+      specificBackAnimationHourChoiceBox4.getValue() != null && 
+      specificBackAnimationMinuteChoiceBox4.getValue() != null && 
+      specificBackAnimationSecondChoiceBox4.getValue() != null) {
+        specificDateTimeList.add(LocalDateTime.of(
+          specificBackAnimationDatePicker4.getValue(), 
+          LocalTime.of(specificBackAnimationHourChoiceBox4.getValue(), specificBackAnimationMinuteChoiceBox4.getValue(), specificBackAnimationSecondChoiceBox4.getValue())
+        ));
+        
+        specificAnimationTypeList.add(AnimationType.Back);
+      }
+    }
+
+    // 有効な表示時刻が存在しない場合はここで処理を終了
+    if (specificDateTimeList.size() == 0) {
+      return;
+    }
+
+    // animationTimelineの定義
+    animationTimeline = new Timeline(
+      new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+          LocalDateTime nowDetail = LocalDateTime.now();
+          LocalDateTime now = LocalDateTime.of(
+            nowDetail.toLocalDate(),
+            LocalTime.of(nowDetail.getHour(), nowDetail.getMinute(), nowDetail.getSecond())
+          );
+          System.out.println(now);
+
+          for (int i = 0; i < specificDateTimeList.size(); i++) {
+            if (now.equals(specificDateTimeList.get(i)) == true) {
+              switch (specificAnimationTypeList.get(i)) {
+                case Front:
+                  Image frontAnimationImage = new Image(frontAnimationUrl, true);
+                  frontAnimationImageView.setImage(frontAnimationImage);
+                  System.out.println("前面セット");
+                  break;
+                case Back:
+                  Image backAnimationImage = new Image(backAnimationUrl, true);
+                  backAnimationImageView.setImage(backAnimationImage);
+                  System.out.println("背面セット");
+                  break;
+              }
+            }
+          }
+        }
+      })
+    );
+
+    // animationTimelineの開始
+    animationTimeline.setCycleCount(Timeline.INDEFINITE);
+    animationTimeline.play();
+  }
+
+  private enum AnimationType {
+    Front, Back;
   }
 }
