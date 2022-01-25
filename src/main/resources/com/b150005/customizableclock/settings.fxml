@@ -162,7 +162,7 @@
                      </children>
                   </HBox>
                   <Separator />
-                  <Button fx:id="displayCustomizedClockButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onDisplayClockButtonClicked" text="新規ウィンドウで時計を表示" />
+                  <Button fx:id="displayCustomizedClockButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onDisplayClockButtonClicked" text="新規ウィンドウで時計を表示・更新" />
           </children>
         </VBox>
       </content>
