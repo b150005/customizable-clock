@@ -2,34 +2,26 @@ package com.b150005.customizableclock;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.*;
 import java.util.*;
 
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.RotateTransition;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.*;
+import javafx.event.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
+import javafx.scene.text.*;
+import javafx.stage.*;
 import javafx.util.Duration;
 
 public class SettingsController implements Initializable {
@@ -116,6 +108,16 @@ public class SettingsController implements Initializable {
   @FXML private ColorPicker beforeFontColorPicker;
   @FXML private ColorPicker afterFontColorPicker;
 
+  /**
+   * メイン画面を表示するStage
+   */
+  private static Stage mainStage = null;
+
+  /**
+   * メイン画面に表示するStackPaneを貼り付けるScene
+   */
+  private static Scene mainScene = null;
+
   @FXML private Spinner<Integer> beforeMinuteSpinner;
   @FXML private Spinner<Integer> afterMinuteSpinner;
   @FXML private Spinner<Double> opacitySpinner;
@@ -124,6 +126,10 @@ public class SettingsController implements Initializable {
 
   @FXML private StackPane analogPreviewStackPane;
   @FXML private StackPane digitalPreviewStackPane;
+  /**
+   * メイン画面のStackPane
+   */
+  private static StackPane mainStackPane = null;
 
   /**
    * FileChooserで選択したフォント
@@ -139,17 +145,23 @@ public class SettingsController implements Initializable {
   private static RotateTransition secRotateTransition;
 
   /**
-   * アナログ時計に表示するアニメーション
-   */
-  private static Timeline analogAnimationTimeline = null;
-  /**
-   * デジタル時計に表示するアニメーション
+   * プレビューに表示するアニメーション
    */
   private static Timeline previewAnimationTimeline = null;
+  /**
+   * メイン画面に表示するアニメーション
+   */
+  private static Timeline animationTimeline = null;
   /**
    * デジタル時計のラベルを変更するアニメーション
    */
   private static Timeline digitalLabelTimeline = null;
+
+  /**
+   * MouseEventが発生した2次元座標
+   */
+  private double xOffset = 0;
+  private double yOffset = 0;
 
   /**
    * JavaFXコンポーネントの初期化
@@ -419,8 +431,6 @@ public class SettingsController implements Initializable {
     ImageView hourImageView = new ImageView("file:" + hourFilePathLabel.getText());
     ImageView minuteImageView = new ImageView("file:" + minuteFilePathLabel.getText());
     ImageView secondImageView = new ImageView("file:" + secondFilePathLabel.getText());
-    // ImageView frontAnimationImageView = new ImageView("file:" + frontAnimationFilePathLabel.getText());
-    // ImageView backAnimationImageView = new ImageView("file:" + backAnimationFilePathLabel.getText());
 
     // アナログ時計のList
     List<ImageView> clockImageViewList = new ArrayList<ImageView>(Arrays.asList(
@@ -430,37 +440,14 @@ public class SettingsController implements Initializable {
       secondImageView
     ));
 
-    // // アニメーションのList
-    // List<ImageView> animationImageViewList = new ArrayList<ImageView>();
-    // if (backAnimationIsOnCheckBox.isSelected() == true) {
-    //   animationImageViewList.add(backAnimationImageView);
-    // }
-    // if (frontAnimationIsOnCheckBox.isSelected() == true) {
-    //   animationImageViewList.add(frontAnimationImageView);
-    // }
-
     // Imageファイルが存在する場合はStackPaneへの表示対象として追加
     // アニメーションの前面表示フラグに応じてObservableListに追加する順番を変更
     ObservableList<ImageView> willAlwaysShowImageViewObservableList= FXCollections.observableArrayList();
     // ObservableList<ImageView> willSpecificShowImageViewObservableList = FXCollections.observableArrayList();
     if (displayAnimationInFrontCheckBox.isSelected() == true) {
       addFoundImageViews(clockImageViewList, willAlwaysShowImageViewObservableList);
-      // if (frontAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
-      //   // 指定時のみ表示フラグがTrueの場合は、アニメーションをwillSpecificShowImageViewObservableListに追加
-      //   addFoundImageViews(animationImageViewList, willSpecificShowImageViewObservableList);
-      // }
-      // else {
-      //   addFoundImageViews(animationImageViewList, willAlwaysShowImageViewObservableList);
-      // }
     }
     else {
-      // if (backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
-      //   // 指定時のみ表示フラグがTrueの場合は、アニメーションをwillSpecificShowImageViewObservableListに追加
-      //   addFoundImageViews(animationImageViewList, willSpecificShowImageViewObservableList);
-      // }
-      // else {
-      //   addFoundImageViews(animationImageViewList, willAlwaysShowImageViewObservableList);
-      // }
       addFoundImageViews(clockImageViewList, willAlwaysShowImageViewObservableList);
     }
 
@@ -478,18 +465,6 @@ public class SettingsController implements Initializable {
         imgView.fitHeightProperty().bind(paneWidth);
       }
     }
-    // for (ImageView imgView: willSpecificShowImageViewObservableList) {
-    //   ReadOnlyDoubleProperty paneWidth = analogPreviewStackPane.widthProperty();
-    //   ReadOnlyDoubleProperty paneHeight = analogPreviewStackPane.heightProperty();
-    //   if (analogPreviewStackPane.getWidth() > analogPreviewStackPane.getHeight()) {
-    //     imgView.fitWidthProperty().bind(paneHeight);
-    //     imgView.fitHeightProperty().bind(paneHeight);
-    //   }
-    //   else {
-    //     imgView.fitWidthProperty().bind(paneWidth);
-    //     imgView.fitHeightProperty().bind(paneWidth);
-    //   }
-    // }
 
     // StackPaneの初期化・常時表示するImageViewのセット
     analogPreviewStackPane.getChildren().clear();
@@ -505,251 +480,8 @@ public class SettingsController implements Initializable {
     secRotateTransition = createRotateTransition(PreviewType.Preview, Duration.seconds(60), secondImageView, getInitialAngle(time, TimeType.Second));
     secRotateTransition.play();
 
-    /**
-     * 指定時アニメーション
-     */
-    // アニメーションTimelineの初期化
-    if (analogAnimationTimeline != null) {
-      analogAnimationTimeline.stop();
-      analogAnimationTimeline = null;
-
-      System.out.println("Timelineを停止しました");
-    }
-
+    // StackPaneへのアニメーションの追加
     this.addAnimationsOntoStackPane(analogPreviewStackPane, previewAnimationTimeline);
-
-    // // 指定時アニメーションファイルが存在する場合のみ実行
-    // if (willSpecificShowImageViewObservableList.size() > 0) {
-    //   // 指定時のみ表示するアニメーションの表示時刻と表示するアニメーションの取得
-    //   // → 表示する際は表示時刻のインデックスに対応するアニメーションを表示
-    //   List<LocalDateTime> specificDateTimeList = new ArrayList<LocalDateTime>();
-    //   List<ImageView> specificAnimationList = new ArrayList<ImageView>();
-
-    //   // アニメーション(前面)に設定されたgifファイルが有効である場合のみ
-    //   if (willSpecificShowImageViewObservableList.contains(frontAnimationImageView) == true) {
-    //     // アニメーション(前面)の表示時刻①
-    //     if (specificFrontAnimationIsOnCheckBox1.isSelected() == true && 
-    //     specificFrontAnimationHourChoiceBox1.getValue() != null &&
-    //     specificFrontAnimationMinuteChoiceBox1.getValue() != null &&
-    //     specificFrontAnimationSecondChoiceBox1.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificFrontAnimationDatePicker1.getValue(), 
-    //         LocalTime.of(specificFrontAnimationHourChoiceBox1.getValue(), specificFrontAnimationMinuteChoiceBox1.getValue(), specificFrontAnimationSecondChoiceBox1.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(frontAnimationImageView);
-    //     }
-
-    //     // アニメーション(前面)の表示時刻②
-    //     if (specificFrontAnimationIsOnCheckBox2.isSelected() == true && 
-    //     specificFrontAnimationHourChoiceBox2.getValue() != null &&
-    //     specificFrontAnimationMinuteChoiceBox2.getValue() != null &&
-    //     specificFrontAnimationSecondChoiceBox2.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificFrontAnimationDatePicker2.getValue(), 
-    //         LocalTime.of(specificFrontAnimationHourChoiceBox2.getValue(), specificFrontAnimationMinuteChoiceBox2.getValue(), specificFrontAnimationSecondChoiceBox2.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(frontAnimationImageView);
-    //     }
-
-    //     // アニメーション(前面)の表示時刻③
-    //     if (specificFrontAnimationIsOnCheckBox3.isSelected() == true && 
-    //     specificFrontAnimationHourChoiceBox3.getValue() != null &&
-    //     specificFrontAnimationMinuteChoiceBox3.getValue() != null &&
-    //     specificFrontAnimationSecondChoiceBox3.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificFrontAnimationDatePicker3.getValue(), 
-    //         LocalTime.of(specificFrontAnimationHourChoiceBox3.getValue(), specificFrontAnimationMinuteChoiceBox3.getValue(), specificFrontAnimationSecondChoiceBox3.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(frontAnimationImageView);
-    //     }
-
-    //     // アニメーション(前面)の表示時刻④
-    //     if (specificFrontAnimationIsOnCheckBox4.isSelected() == true && 
-    //     specificFrontAnimationHourChoiceBox4.getValue() != null &&
-    //     specificFrontAnimationMinuteChoiceBox4.getValue() != null &&
-    //     specificFrontAnimationSecondChoiceBox4.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificFrontAnimationDatePicker4.getValue(), 
-    //         LocalTime.of(specificFrontAnimationHourChoiceBox4.getValue(), specificFrontAnimationMinuteChoiceBox4.getValue(), specificFrontAnimationSecondChoiceBox4.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(frontAnimationImageView);
-    //     }
-    //   }
-
-    //   // アニメーション(背面)に設定されたgifファイルが有効である場合のみ
-    //   if (willSpecificShowImageViewObservableList.contains(backAnimationImageView) == true) {
-    //     // アニメーション(背面)の表示時刻①
-    //     if (specificBackAnimationIsOnCheckBox1.isSelected() == true && 
-    //     specificBackAnimationHourChoiceBox1.getValue() != null &&
-    //     specificBackAnimationMinuteChoiceBox1.getValue() != null &&
-    //     specificBackAnimationSecondChoiceBox1.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificBackAnimationDatePicker1.getValue(), 
-    //         LocalTime.of(specificBackAnimationHourChoiceBox1.getValue(), specificBackAnimationMinuteChoiceBox1.getValue(), specificBackAnimationSecondChoiceBox1.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(backAnimationImageView);
-    //     }
-
-    //     // アニメーション(背面)の表示時刻②
-    //     if (specificBackAnimationIsOnCheckBox2.isSelected() == true && 
-    //     specificBackAnimationHourChoiceBox2.getValue() != null &&
-    //     specificBackAnimationMinuteChoiceBox2.getValue() != null &&
-    //     specificBackAnimationSecondChoiceBox2.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificBackAnimationDatePicker2.getValue(), 
-    //         LocalTime.of(specificBackAnimationHourChoiceBox2.getValue(), specificBackAnimationMinuteChoiceBox2.getValue(), specificBackAnimationSecondChoiceBox2.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(backAnimationImageView);
-    //     }
-
-    //     // アニメーション(背面)の表示時刻③
-    //     if (specificBackAnimationIsOnCheckBox3.isSelected() == true && 
-    //     specificBackAnimationHourChoiceBox3.getValue() != null &&
-    //     specificBackAnimationMinuteChoiceBox3.getValue() != null &&
-    //     specificBackAnimationSecondChoiceBox3.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificBackAnimationDatePicker3.getValue(), 
-    //         LocalTime.of(specificBackAnimationHourChoiceBox3.getValue(), specificBackAnimationMinuteChoiceBox3.getValue(), specificBackAnimationSecondChoiceBox3.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(backAnimationImageView);
-    //     }
-
-    //     // アニメーション(背面)の表示時刻④
-    //     if (specificBackAnimationIsOnCheckBox4.isSelected() == true && 
-    //     specificBackAnimationHourChoiceBox4.getValue() != null &&
-    //     specificBackAnimationMinuteChoiceBox4.getValue() != null &&
-    //     specificBackAnimationSecondChoiceBox4.getValue() != null) {
-    //       // 表示時刻の取得
-    //       specificDateTimeList.add(LocalDateTime.of(
-    //         specificBackAnimationDatePicker4.getValue(), 
-    //         LocalTime.of(specificBackAnimationHourChoiceBox4.getValue(), specificBackAnimationMinuteChoiceBox4.getValue(), specificBackAnimationSecondChoiceBox4.getValue())
-    //       ));
-
-    //       // アニメーションの取得
-    //       specificAnimationList.add(backAnimationImageView);
-    //     }
-    //   }
-
-    //   analogAnimationTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
-    //     @Override
-    //     public void handle(ActionEvent event) {
-    //       LocalDateTime detailNow = LocalDateTime.now();
-    //       LocalDateTime now = LocalDateTime.of(
-    //         detailNow.toLocalDate(), 
-    //         LocalTime.of(detailNow.getHour(), detailNow.getMinute(), detailNow.getSecond()));
-    //       System.out.println(now);
-          
-    //       for (int i = 0; i < specificDateTimeList.size(); i++) {
-    //         if (now.equals(specificDateTimeList.get(i)) == true) {
-    //           // アニメーションの前面表示フラグに応じてStackPaneへの追加位置を変更
-
-    //           /**
-    //            * 後ろのindexほど前面に表示される
-    //            */
-
-    //           // 前面表示 かつ アニメーション(前面) の場合は最後のindexに追加
-    //           if (displayAnimationInFrontCheckBox.isSelected() == true && specificAnimationList.get(i).equals(frontAnimationImageView) == true) {
-    //             // LoopしないImageを表示の直前で読み込む
-    //             Image frontAnimationImage = new Image("file:" + frontAnimationFilePathLabel.getText(), true);
-    //             specificAnimationList.get(i).setImage(frontAnimationImage);
-
-    //             // StackPaneへのImageViewの追加
-    //             analogPreviewStackPane.getChildren().add(specificAnimationList.get(i));
-
-    //             System.out.println("最前面に挿入");
-    //           }
-
-    //           // 前面表示 かつ アニメーション(背面)の場合
-    //           // → StackPaneにアニメーション(前面)が含まれているかどうかで処理が分岐
-    //           else if (displayAnimationInFrontCheckBox.isSelected() == true && specificAnimationList.get(i).equals(backAnimationImageView) == true) {
-    //             // 最前面にアニメーション(前面)が含まれていれば最後のindexの1つ前に挿入
-    //             ObservableList<Node> showingImageViewObservableList = analogPreviewStackPane.getChildren();
-    //             String imageUrl = ((ImageView) showingImageViewObservableList.get(showingImageViewObservableList.size() - 1)).getImage().getUrl();
-
-    //             // LoopしないImageを表示の直前で読み込む
-    //             Image backAnimationImage = new Image("file:" + backAnimationFilePathLabel.getText(), true);
-    //             specificAnimationList.get(i).setImage(backAnimationImage);
-
-    //             // StackPaneへのImageViewの追加
-    //             if (imageUrl.equals(frontAnimationImageView.getImage().getUrl()) == true) {
-    //               analogPreviewStackPane.getChildren().add(analogPreviewStackPane.getChildren().size() - 2, specificAnimationList.get(i));
-
-    //               System.out.println("前から2番目に挿入");
-    //             }
-    //             // アニメーション(前面)が含まれていなれば最後のindexに挿入
-    //             else {
-    //               analogPreviewStackPane.getChildren().add(specificAnimationList.get(i));
-
-    //               System.out.println("最前面に挿入");
-    //             }
-    //           }
-
-    //           // 前面表示でない かつ アニメーション(前面)の場合
-    //           // → StackPaneにアニメーション(背面)が含まれているかどうかで処理が分岐
-    //           else if (displayAnimationInFrontCheckBox.isSelected() == false && specificAnimationList.get(i).equals(frontAnimationImageView) == true) {
-    //             // アニメーション(背面)が含まれていれば最初のindexの1つ後ろに挿入
-    //             ObservableList<Node> showingImageViewObservableList = analogPreviewStackPane.getChildren();
-    //             String imageUrl = ((ImageView) showingImageViewObservableList.get(0)).getImage().getUrl();
-
-    //             // LoopしないImageを表示の直前で読み込む
-    //             Image frontAnimationImage = new Image("file:" + frontAnimationFilePathLabel.getText(), true);
-    //             specificAnimationList.get(i).setImage(frontAnimationImage);
-
-    //             // StackPaneへのImageViewの追加
-    //             if (imageUrl.equals(backAnimationImageView.getImage().getUrl()) == true) {
-    //               analogPreviewStackPane.getChildren().add(1, specificAnimationList.get(i));
-
-    //               System.out.println("後ろから2番目に挿入");
-    //             }
-    //             // アニメーション(背面)が含まれていなれば最初のindexに挿入
-    //             else {
-    //               analogPreviewStackPane.getChildren().add(0, specificAnimationList.get(i));
-
-    //               System.out.println("最背面に挿入");
-    //             }
-    //           }
-
-    //           // 前面表示でない かつ アニメーション(背面)の場合は最初のindexに追加
-    //           else if (displayAnimationInFrontCheckBox.isSelected() == false && specificAnimationList.get(i).equals(backAnimationImageView) == true) {
-    //             // LoopしないImageを表示の直前で読み込む
-    //             Image backAnimationImage = new Image("file:" + backAnimationFilePathLabel.getText(), true);
-    //             specificAnimationList.get(i).setImage(backAnimationImage);
-
-    //             // StackPaneへのImageViewの追加
-    //             analogPreviewStackPane.getChildren().add(0, specificAnimationList.get(i));
-
-    //             System.out.println("最背面に挿入");
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }));
-
-    //   // analogAnimationTimelineの開始
-    //   analogAnimationTimeline.setCycleCount(Timeline.INDEFINITE);
-    //   analogAnimationTimeline.play();
-    // }
   }
 
   /**
@@ -983,8 +715,12 @@ public class SettingsController implements Initializable {
       }));
     }
 
+    // Labelに反映するTimelineの設定
     digitalLabelTimeline.setCycleCount(Timeline.INDEFINITE);
     digitalLabelTimeline.play();
+
+    // StackPaneへのアニメーションの追加
+    this.addAnimationsOntoStackPane(digitalPreviewStackPane, previewAnimationTimeline);
   }
 
   /**
@@ -1120,7 +856,7 @@ public class SettingsController implements Initializable {
     }
 
     // アニメーション(背面)の表示時刻
-    if (backAnimationIsOnCheckBox.isSelected() == true && backAnimationImage.errorProperty().get() == false && backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == false) {
+    if (backAnimationIsOnCheckBox.isSelected() == true && backAnimationImage.errorProperty().get() == false && backAnimationDisplaysOnSpecificTimeCheckBox.isSelected() == true) {
       if (specificBackAnimationIsOnCheckBox1.isSelected() == true && 
       specificBackAnimationDatePicker1.getValue() != null && 
       specificBackAnimationHourChoiceBox1.getValue() != null && 
@@ -1215,5 +951,88 @@ public class SettingsController implements Initializable {
 
   private enum AnimationType {
     Front, Back;
+  }
+
+  /**
+   * 新規ウィンドウで時計を表示・更新ボタンが押下された場合の処理
+   */
+  @FXML protected void onDisplayClockButtonClicked() {
+    // メイン画面を表示するStageとStackPaneがnullである場合(=初回)のみ新規ウィンドウで開く
+    if (mainStage == null && mainScene == null && mainStackPane == null) {
+      // 透明なStageのインスタンスを生成
+      mainStage = new Stage(StageStyle.TRANSPARENT);
+
+      // StackPaneの生成
+      mainStackPane = new StackPane();
+
+      // StackPaneのスタイルを変更
+      mainStackPane.setStyle(
+        // "-fx-background-radius: 10; -fx-background-color: transparent;"  // 本番用
+        "-fx-background-radius: 10; -fx-background-color: rgba(0,0,0,0.3);" // テスト用
+      );
+
+      // StackPane上でマウスが押された場合はクリックされた時点の座標を取得
+      mainStackPane.setOnMousePressed((MouseEvent event) -> {
+        xOffset = event.getSceneX();
+        yOffset = event.getSceneY();
+      });
+      // StackPane上でドラッグされた場合は移動距離に応じてStageを移動させる
+      mainStackPane.setOnMouseDragged((MouseEvent event) -> {
+        // Stageの座標を移動
+        mainStage.setX(event.getScreenX() - xOffset);
+        mainStage.setY(event.getScreenY() - yOffset);
+      });
+
+      // SceneにStackPaneをセット
+      mainScene = new Scene(mainStackPane, 400, 200);
+      
+      // Sceneの背景色をなしにする
+      mainScene.setFill(null);
+      
+      // StageにSceneをセット
+      mainStage.setScene(mainScene);
+
+      /**
+       * Stage ↔ Scene ↔ StackPane 間でのサイズ連動
+       */
+      // Scene → StackPane
+      mainScene.widthProperty().addListener(new ChangeListener<Number>() {
+        @Override
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+          mainStackPane.setPrefWidth(newSceneWidth.doubleValue());
+        }
+      });
+      mainScene.heightProperty().addListener(new ChangeListener<Number>() {
+        @Override
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+          mainStackPane.setPrefHeight(newSceneHeight.doubleValue());
+        }
+      });
+      // Stage → Scene
+      mainStage.widthProperty().addListener(new ChangeListener<Number>() {
+        @Override
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldStageWidth, Number newStageWidth) {
+          
+        }
+      });
+      mainStage.heightProperty().addListener(new ChangeListener<Number>() {
+        @Override
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldStageHeight, Number newStageHeight) {
+          
+        }
+      });
+
+      // Stageのウィンドウリサイズを可能にする
+      mainStage.setResizable(true);
+
+      // Stageを常に最前面に表示する
+      mainStage.setAlwaysOnTop(true);
+
+      // Stageのウィンドウタイトル
+      mainStage.setTitle("Customizable Clock for Sealily");
+
+      // Stageの表示
+      mainStage.showAndWait();
+    }
   }
 }
