@@ -20,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -138,11 +139,18 @@ public class SettingsController implements Initializable {
   private static File userFontFile = null;
 
   /**
-   * アナログ時計の回転アニメーション
+   * メイン画面に表示するアナログ時計の回転アニメーション
    */
-  private static RotateTransition hourRotateTransition;
-  private static RotateTransition minRotateTransition;
-  private static RotateTransition secRotateTransition;
+  private static RotateTransition mainHourRotateTransition = null;
+  private static RotateTransition mainMinRotateTransition = null;
+  private static RotateTransition mainSecRotateTransition = null;
+
+  /**
+   * プレビューに表示するアナログ時計の回転アニメーション
+   */
+  private static RotateTransition previewHourRotateTransition = null;
+  private static RotateTransition previewMinRotateTransition = null;
+  private static RotateTransition previewSecRotateTransition = null;
 
   /**
    * プレビューに表示するアニメーション
@@ -151,17 +159,40 @@ public class SettingsController implements Initializable {
   /**
    * メイン画面に表示するアニメーション
    */
-  private static Timeline animationTimeline = null;
+  private static Timeline mainAnimationTimeline = null;
   /**
-   * デジタル時計のラベルを変更するアニメーション
+   * プレビューに表示するデジタル時計のラベルを変更するアニメーション
    */
-  private static Timeline digitalLabelTimeline = null;
+  private static Timeline previewDigitalLabelTimeline = null;
+  /**
+   * メイン画面に表示するデジタル時計のラベルを変更するアニメーション
+   */
+  private static Timeline mainDigitalLabelTimeline = null;
 
   /**
    * MouseEventが発生した2次元座標
    */
   private double xOffset = 0;
   private double yOffset = 0;
+
+  /**
+   * メイン画面に表示するデジタル時計(タイマー)の各種情報
+   */
+  private static LocalDateTime mainLocalDateTime;
+  private static int mainBeforeMin;
+  private static int mainAfterMin;
+  private static Color mainBaseFontColor;
+  private static Color mainBeforeFontColor;
+  private static Color mainAfterFontColor;
+  /**
+   * プレビューに表示するデジタル時計(タイマー)の各種情報
+   */
+  private static LocalDateTime previewLocalDateTime;
+  private static int previewBeforeMin;
+  private static int previewAfterMin;
+  private static Color previewBaseFontColor;
+  private static Color previewBeforeFontColor;
+  private static Color previewAfterFontColor;
 
   /**
    * JavaFXコンポーネントの初期化
@@ -427,6 +458,31 @@ public class SettingsController implements Initializable {
    * アナログ時計のプレビューを更新
    */
   @FXML protected void reloadAnalogPreview() {
+    // StackPaneへのアナログ時計gifの追加
+    this.attachImageViewToStackPane(analogPreviewStackPane, PreviewType.Preview, previewHourRotateTransition, previewMinRotateTransition, previewSecRotateTransition);
+
+    // StackPaneへのアニメーションの追加
+    this.addAnimationsOntoStackPane(analogPreviewStackPane, previewAnimationTimeline);
+  }
+
+  private void attachImageViewToStackPane(StackPane stackPane, PreviewType previewType, RotateTransition hourRotateTransition, RotateTransition minRotateTransition, RotateTransition secRotateTransition) {
+    // StackPaneの初期化
+    stackPane.getChildren().clear();
+
+    // RotateTransitionの初期化
+    if (hourRotateTransition != null) {
+      hourRotateTransition.stop();
+      hourRotateTransition = null;
+    }
+    if (minRotateTransition != null) {
+      minRotateTransition.stop();
+      minRotateTransition = null;
+    }
+    if (secRotateTransition != null) {
+      secRotateTransition.stop();
+      secRotateTransition = null;
+    }
+
     ImageView faceImageView = new ImageView("file:" + faceFilePathLabel.getText());
     ImageView hourImageView = new ImageView("file:" + hourFilePathLabel.getText());
     ImageView minuteImageView = new ImageView("file:" + minuteFilePathLabel.getText());
@@ -443,7 +499,6 @@ public class SettingsController implements Initializable {
     // Imageファイルが存在する場合はStackPaneへの表示対象として追加
     // アニメーションの前面表示フラグに応じてObservableListに追加する順番を変更
     ObservableList<ImageView> willAlwaysShowImageViewObservableList= FXCollections.observableArrayList();
-    // ObservableList<ImageView> willSpecificShowImageViewObservableList = FXCollections.observableArrayList();
     if (displayAnimationInFrontCheckBox.isSelected() == true) {
       addFoundImageViews(clockImageViewList, willAlwaysShowImageViewObservableList);
     }
@@ -454,9 +509,9 @@ public class SettingsController implements Initializable {
     // StackPaneに表示するImageViewのサイズをStackPaneと連動
     // 幅と高さで小さい方に合わせる
     for (ImageView imgView: willAlwaysShowImageViewObservableList) {
-      ReadOnlyDoubleProperty paneWidth = analogPreviewStackPane.widthProperty();
-      ReadOnlyDoubleProperty paneHeight = analogPreviewStackPane.heightProperty();
-      if (analogPreviewStackPane.getWidth() > analogPreviewStackPane.getHeight()) {
+      ReadOnlyDoubleProperty paneWidth = stackPane.widthProperty();
+      ReadOnlyDoubleProperty paneHeight = stackPane.heightProperty();
+      if (stackPane.getWidth() > stackPane.getHeight()) {
         imgView.fitWidthProperty().bind(paneHeight);
         imgView.fitHeightProperty().bind(paneHeight);
       }
@@ -466,22 +521,18 @@ public class SettingsController implements Initializable {
       }
     }
 
-    // StackPaneの初期化・常時表示するImageViewのセット
-    analogPreviewStackPane.getChildren().clear();
-    analogPreviewStackPane.getChildren().addAll(willAlwaysShowImageViewObservableList);
+    // 常時表示するImageViewのセット
+    stackPane.getChildren().addAll(willAlwaysShowImageViewObservableList);
 
     // 現在時刻に応じた回転アニメーションの再生
     // 第一引数がPreviewType.Previewの場合はCycleCountが有限のためstop()しない
     LocalTime time = LocalTime.now();
-    hourRotateTransition = createRotateTransition(PreviewType.Preview, Duration.hours(12), hourImageView, getInitialAngle(time, TimeType.Hour));
+    hourRotateTransition = createRotateTransition(previewType, Duration.hours(12), hourImageView, getInitialAngle(time, TimeType.Hour));
     hourRotateTransition.play();
-    minRotateTransition = createRotateTransition(PreviewType.Preview, Duration.minutes(60), minuteImageView, getInitialAngle(time, TimeType.Minute));
+    minRotateTransition = createRotateTransition(previewType, Duration.minutes(60), minuteImageView, getInitialAngle(time, TimeType.Minute));
     minRotateTransition.play();
-    secRotateTransition = createRotateTransition(PreviewType.Preview, Duration.seconds(60), secondImageView, getInitialAngle(time, TimeType.Second));
+    secRotateTransition = createRotateTransition(previewType, Duration.seconds(60), secondImageView, getInitialAngle(time, TimeType.Second));
     secRotateTransition.play();
-
-    // StackPaneへのアニメーションの追加
-    this.addAnimationsOntoStackPane(analogPreviewStackPane, previewAnimationTimeline);
   }
 
   /**
@@ -568,6 +619,51 @@ public class SettingsController implements Initializable {
    * デジタル時計(タイマー)のプレビューを更新
    */
   @FXML protected void reloadDigitalPreview() {
+    /**
+     * 各種情報の取得
+     */
+    if (timerDatePicker.getValue() != null && timerHourChoiceBox.getValue() != null && timerMinuteChoiceBox.getValue() != null && timerSecondChoiceBox.getValue() != null) {
+      previewLocalDateTime = LocalDateTime.of(
+        timerDatePicker.getValue(), 
+        LocalTime.of(
+          timerHourChoiceBox.getValue(), 
+          timerMinuteChoiceBox.getValue(), 
+          timerSecondChoiceBox.getValue()
+        )
+      );
+    }
+    else {
+      previewLocalDateTime = LocalDateTime.now().plusHours(1);
+    }
+    previewBeforeMin = beforeMinuteSpinner.getValue();
+    previewAfterMin = afterMinuteSpinner.getValue();
+    previewBaseFontColor = baseFontColorPicker.getValue();
+    previewBeforeFontColor = beforeFontColorPicker.getValue();
+    previewAfterFontColor = afterFontColorPicker.getValue();
+
+    // StackPaneへのLabelの追加
+    this.attachLabelToStackPane(digitalPreviewStackPane, previewDigitalLabelTimeline, previewLocalDateTime, previewBeforeMin, previewAfterMin, previewBaseFontColor, previewBeforeFontColor, previewAfterFontColor);
+
+    // StackPaneへのアニメーションの追加
+    this.addAnimationsOntoStackPane(digitalPreviewStackPane, previewAnimationTimeline);
+  }
+
+  /**
+   * デジタル時計(タイマー)を表示するLabelを生成しStackPaneに貼り付ける
+   * @param stackPane Labelを貼り付けるStackPane
+   * @param labelTimeline デジタル時計(タイマー)を反映するTimeline
+   */
+  private void attachLabelToStackPane(StackPane stackPane, Timeline labelTimeline, LocalDateTime localDateTime, int beforeMin, int afterMin, Color baseFontColor, Color beforeFontColor, Color afterFontColor) {
+    // StackPaneの初期化
+    stackPane.getChildren().clear();
+
+    // Timelineの初期化
+    if (labelTimeline != null) {
+      labelTimeline.stop();
+      labelTimeline = null;
+    }
+
+    // デジタル時計/タイマーとして表示するLabel
     Label timerLabel = new Label();
 
     // フォントの設定
@@ -633,7 +729,7 @@ public class SettingsController implements Initializable {
       text.setFont(tempFont);
       double textWidth = text.getLayoutBounds().getWidth();
 
-      double newFontSize = defaultFontSize * (digitalPreviewStackPane.getWidth() / textWidth);
+      double newFontSize = defaultFontSize * (stackPane.getWidth() / textWidth);
       Font displayedFont;
       // ユーザの独自フォントが選択されている場合は独自フォントファイルを読み込んで表示
       if (userFontName != null && userFontFile != null) {
@@ -647,14 +743,11 @@ public class SettingsController implements Initializable {
       timerLabel.setFont(displayedFont);
     });
 
-    // 前回のTimelineが残っている場合はstopし、StackPaneからLabelを除去
-    if (digitalLabelTimeline != null) {
-      digitalLabelTimeline.stop();
-      digitalPreviewStackPane.getChildren().clear();
-    }
+    // Labelの透明度(opacity)
+    timerLabel.setOpacity(opacitySpinner.getValue());
 
     // LabelをStackPaneに追加
-    digitalPreviewStackPane.getChildren().add(timerLabel);
+    stackPane.getChildren().add(timerLabel);
     
     // Timelineを用いたデジタル時計の描画
     if (digitalClockModeRadioButton.isSelected() == true) {
@@ -662,7 +755,7 @@ public class SettingsController implements Initializable {
       timerLabel.setTextFill(baseFontColorPicker.getValue());
       timerLabel.setOpacity(opacitySpinner.getValue());
 
-      digitalLabelTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+      labelTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
           LocalTime time = LocalTime.now();
@@ -673,41 +766,37 @@ public class SettingsController implements Initializable {
     }
     // Timelineを用いたデジタルタイマーの描画
     else if (digitalTimerModeRadioButton.isSelected() == true &&
-      timerDatePicker.getValue() != null &&
-      timerHourChoiceBox.getValue() != null &&
-      timerSecondChoiceBox.getValue() != null) {
-      digitalLabelTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+    timerDatePicker.getValue() != null &&
+    timerHourChoiceBox.getValue() != null &&
+    timerSecondChoiceBox.getValue() != null) {
+      labelTimeline = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
           // 現在時刻と指定日時を取得
           LocalDateTime now = LocalDateTime.now();
-          LocalDate date = timerDatePicker.getValue();
-          LocalTime time = LocalTime.of(
-            timerHourChoiceBox.getValue(), 
-            timerMinuteChoiceBox.getValue(), 
-            timerSecondChoiceBox.getValue());
-          LocalDateTime specificDateTime = LocalDateTime.of(date, time);
 
           // 2つのLocalDateTimeの差分(Duration)を取得
-          java.time.Duration duration = java.time.Duration.between(now, specificDateTime);
-          int hour = (int) duration.toHours();
+          java.time.Duration duration = java.time.Duration.between(now, localDateTime);
+          int hour;
+          if ((duration.toSeconds() >= 0) || (duration.toSeconds() < 0 && duration.toHours() < 0)) {
+            hour = (int) duration.toHours();
+          }
+          else {
+            hour = (int) -duration.toHours();
+          }
           int min = duration.toMinutes() >= 0 ? (int) duration.toMinutes() % 60 : (int) -duration.toMinutes() % 60;
           int sec = duration.toSeconds() >= 0 ? (int) duration.toSeconds() % 60 : (int) -duration.toSeconds() % 60;
 
           // フォント色・透明度の設定
-          int beforeMin = beforeMinuteSpinner.getValue();
-          int afterMin = afterMinuteSpinner.getValue();
           if (duration.toSeconds() >= 0 && duration.toSeconds() <= beforeMin * 60) {
-            timerLabel.setTextFill(beforeFontColorPicker.getValue());
+            timerLabel.setTextFill(beforeFontColor);
           }
           else if (duration.toSeconds() < 0 && -duration.toSeconds() <= afterMin * 60) {
-            timerLabel.setTextFill(afterFontColorPicker.getValue());
+            timerLabel.setTextFill(afterFontColor);
           }
           else {
-            timerLabel.setTextFill(baseFontColorPicker.getValue());
+            timerLabel.setTextFill(baseFontColor);
           }
-          timerLabel.setOpacity(opacitySpinner.getValue());
-
 
           String text = String.format("%02d:%02d:%02d", hour, min, sec);
           timerLabel.setText(text);
@@ -716,11 +805,8 @@ public class SettingsController implements Initializable {
     }
 
     // Labelに反映するTimelineの設定
-    digitalLabelTimeline.setCycleCount(Timeline.INDEFINITE);
-    digitalLabelTimeline.play();
-
-    // StackPaneへのアニメーションの追加
-    this.addAnimationsOntoStackPane(digitalPreviewStackPane, previewAnimationTimeline);
+    labelTimeline.setCycleCount(Timeline.INDEFINITE);
+    labelTimeline.play();
   }
 
   /**
@@ -984,7 +1070,7 @@ public class SettingsController implements Initializable {
       });
 
       // SceneにStackPaneをセット
-      mainScene = new Scene(mainStackPane, 400, 200);
+      mainScene = new Scene(mainStackPane);
       
       // Sceneの背景色をなしにする
       mainScene.setFill(null);
@@ -1008,17 +1094,17 @@ public class SettingsController implements Initializable {
           mainStackPane.setPrefHeight(newSceneHeight.doubleValue());
         }
       });
-      // Stage → Scene
-      mainStage.widthProperty().addListener(new ChangeListener<Number>() {
+      // Scene → Stage
+      mainScene.widthProperty().addListener(new ChangeListener<Number>() {
         @Override
-        public void changed(ObservableValue<? extends Number> observableValue, Number oldStageWidth, Number newStageWidth) {
-          
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+          mainStackPane.setPrefWidth(newSceneWidth.doubleValue());
         }
       });
-      mainStage.heightProperty().addListener(new ChangeListener<Number>() {
+      mainScene.heightProperty().addListener(new ChangeListener<Number>() {
         @Override
-        public void changed(ObservableValue<? extends Number> observableValue, Number oldStageHeight, Number newStageHeight) {
-          
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+          mainStackPane.setPrefHeight(newSceneHeight.doubleValue());
         }
       });
 
@@ -1032,7 +1118,69 @@ public class SettingsController implements Initializable {
       mainStage.setTitle("Customizable Clock for Sealily");
 
       // Stageの表示
-      mainStage.showAndWait();
+      mainStage.show();
     }
+
+    // StackPaneの初期化
+    mainStackPane.getChildren().clear();
+
+    /**
+     * ImageView(アナログ時計), Label(デジタル時計/タイマー)のStackPaneへの反映
+     */
+    // アナログ時計
+    if (analogClockModeRadioButton.isSelected() == true) {
+      // デジタル時計(タイマー)で利用するTimelineのstop
+      if (mainDigitalLabelTimeline != null) {
+        mainDigitalLabelTimeline.stop();
+        mainDigitalLabelTimeline = null;
+      }
+
+      // StackPaneへのアナログ時計gifの追加
+      this.attachImageViewToStackPane(mainStackPane, PreviewType.Main, mainHourRotateTransition, mainMinRotateTransition, mainSecRotateTransition);
+    }
+    // デジタル時計(タイマー)
+    else {
+      // アナログ時計で利用するRotateTransitionのstop
+      if (mainHourRotateTransition != null) {
+        mainHourRotateTransition.stop();
+        mainHourRotateTransition = null;
+      }
+      if (mainMinRotateTransition != null) {
+        mainMinRotateTransition.stop();
+        mainMinRotateTransition = null;
+      }
+      if (mainSecRotateTransition != null) {
+        mainSecRotateTransition.stop();
+        mainSecRotateTransition = null;
+      }
+
+      /**
+       * 各種情報の取得
+       */
+      if (timerDatePicker.getValue() != null && timerHourChoiceBox.getValue() != null && timerMinuteChoiceBox.getValue() != null && timerSecondChoiceBox.getValue() != null) {
+        mainLocalDateTime = LocalDateTime.of(
+          timerDatePicker.getValue(), 
+          LocalTime.of(
+            timerHourChoiceBox.getValue(), 
+            timerMinuteChoiceBox.getValue(), 
+            timerSecondChoiceBox.getValue()
+          )
+        );
+      }
+      else {
+        mainLocalDateTime = LocalDateTime.now().plusHours(1);
+      }
+      mainBeforeMin = beforeMinuteSpinner.getValue();
+      mainAfterMin = afterMinuteSpinner.getValue();
+      mainBaseFontColor = baseFontColorPicker.getValue();
+      mainBeforeFontColor = beforeFontColorPicker.getValue();
+      mainAfterFontColor = afterFontColorPicker.getValue();
+
+      // StackPaneへのLabelの追加
+      this.attachLabelToStackPane(mainStackPane, mainDigitalLabelTimeline, mainLocalDateTime, mainBeforeMin, mainAfterMin, mainBaseFontColor, mainBeforeFontColor, mainAfterFontColor);
+    }
+
+    // StackPaneへのアニメーションの追加
+    this.addAnimationsOntoStackPane(mainStackPane, mainAnimationTimeline);
   }
 }
