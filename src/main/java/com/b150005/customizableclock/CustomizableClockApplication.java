@@ -20,7 +20,7 @@ public class CustomizableClockApplication extends Application {
     public void start(Stage stage) {
       // .fxmlファイルのロード
       try {
-        URL url = CustomizableClockApplication.class.getResource("settings.fxml");
+        URL url = CustomizableClockApplication.class.getResource("..\\customizableclock\\settings.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(url);
         Scene scene = new Scene(fxmlLoader.load());
         stage.setScene(scene);
