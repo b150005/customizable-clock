@@ -119,6 +119,8 @@ public class SettingsController implements Initializable {
    */
   private static Scene mainScene = null;
 
+  @FXML private Spinner<Integer> widthSpinner;
+  @FXML private Spinner<Integer> heightSpinner;
   @FXML private Spinner<Integer> beforeMinuteSpinner;
   @FXML private Spinner<Integer> afterMinuteSpinner;
   @FXML private Spinner<Double> opacitySpinner;
@@ -1053,8 +1055,8 @@ public class SettingsController implements Initializable {
 
       // StackPaneのスタイルを変更
       mainStackPane.setStyle(
-        // "-fx-background-radius: 10; -fx-background-color: transparent;"  // 本番用
-        "-fx-background-radius: 10; -fx-background-color: rgba(0,0,0,0.3);" // テスト用
+        "-fx-background-radius: 10; -fx-background-color: transparent;"  // 本番用
+        // "-fx-background-radius: 10; -fx-background-color: rgba(0,0,0,0.3);" // テスト用
       );
 
       // StackPane上でマウスが押された場合はクリックされた時点の座標を取得
@@ -1069,8 +1071,12 @@ public class SettingsController implements Initializable {
         mainStage.setY(event.getScreenY() - yOffset);
       });
 
+      // SceneのサイズをSpinnerから取得
+      int width = widthSpinner.getValue();
+      int height = heightSpinner.getValue();
+
       // SceneにStackPaneをセット
-      mainScene = new Scene(mainStackPane);
+      mainScene = new Scene(mainStackPane, width, height);
       
       // Sceneの背景色をなしにする
       mainScene.setFill(null);

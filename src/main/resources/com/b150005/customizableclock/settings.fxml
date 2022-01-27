@@ -162,6 +162,22 @@
                      </children>
                   </HBox>
                   <Separator />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label text="幅" />
+                        <Spinner fx:id="widthSpinner" editable="true">
+                          <valueFactory>
+                            <SpinnerValueFactory.IntegerSpinnerValueFactory amountToStepBy="10" initialValue="400" max="1000" min="100" />
+                          </valueFactory>
+                        </Spinner>
+                        <Label text="高さ" />
+                        <Spinner fx:id="heightSpinner" editable="true">
+                          <valueFactory>
+                            <SpinnerValueFactory.IntegerSpinnerValueFactory amountToStepBy="10" initialValue="200" max="1000" min="100" />
+                          </valueFactory>
+                        </Spinner>
+                     </children>
+                  </HBox>
                   <Button fx:id="displayCustomizedClockButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onDisplayClockButtonClicked" text="新規ウィンドウで時計を表示・更新" />
           </children>
         </VBox>
