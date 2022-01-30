@@ -23,3 +23,9 @@ CustomizableClockは、以下のモードで構成されます。
 ![setting-digital.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/673880/60a3fb05-33a2-baf8-9dc2-fdf80f09febb.png)
 
 ![setting-analog.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/673880/465163fd-568c-7549-3cf7-a306e838c52d.png)
+
+上記の画像のように透明なウィンドウを表示したい場合は、release.zipからアプリケーションをダウンロードしてください。
+
+また、クロマキー等を用いて自由にサイズ変更・背景透過処理を行う場合はrelease2.zipからアプリケーションをダウンロードしてください。
+
+![release2.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/673880/19e13ea2-c93d-49b4-0c1d-a589a3d020ff.png)
